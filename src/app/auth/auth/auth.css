@@ -1,0 +1,11 @@
+.base-auth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height:100%;
+    width: 100%;
+    background: rgb(214, 255, 253);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-image:  url('../../../assets/fondo_default.jpg');
+}
