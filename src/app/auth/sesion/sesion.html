@@ -1,28 +1,29 @@
-<div class="cuadro cuadro-sesion">
-    <div class="titulo">
-        <p>Iniciar Sesión</p>
+<div class="app-sesion">
+   <div class="cuadro cuadro-sesion">
+        
+        <form class="formulario form-sesion">
+            <h2>Iniciar Sesión</h2>
+            <div class="input-group">
+                <label>Usuario</label>
+                <input type="email" placeholder="Ej: Pepe"/>
+            </div>
+            <div class="input-group">
+                <label>Contraseña</label>
+                <input type="password" placeholder="Escribe tu contraseña"/>
+            </div>
+            <div class="enlaces elemento-formulario">
+                <p>
+                    <a routerLink="/registro">¿No estas registrado?</a>
+                </p>
+                <p>
+                    <a routerLink="/recuperar-contra">Recupera tu contraseña</a>
+                </p>
+            </div>
+            <div class="elemento-bajo">
+                <button type="submit" class="boton-envio sesion-button">
+                    Submit
+                </button>
+            </div>
+        </form>
     </div>
-    <form class="formulario form-sesion">
-        <div class="elemento-formulario">
-            <label>Usuario</label>
-            <input type="email"/>
-        </div>
-        <div class="elemento-formulario">
-            <label>Contraseña</label>
-            <input type="password"/>
-        </div>
-        <div class="enlaces elemento-formulario">
-            <p>
-                <a>¿No estas registrado?</a>
-            </p>
-            <p>
-                <a routerLink="/recuperar-contra">Recupera tu contraseña</a>
-            </p>
-        </div>
-        <div class="elemento-bajo">
-            <button type="submit" class="boton-envio">
-                <mat-icon>speed</mat-icon>Submit
-            </button>
-        </div>
-    </form>
 </div>
