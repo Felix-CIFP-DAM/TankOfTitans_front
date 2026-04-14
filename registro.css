@@ -76,6 +76,16 @@ box-shadow: 0.4px 15px rgba(155,89,182,0.3);
 
 }
 
+.registro-button:hover{
+    background-color: #8e44ad;
+    transform:translateY(-2px);
+}
+
+.registro-button:active {
+    transform:translateY(-2px);
+    box-shadow: 0.4px 15px rgba(155,89,182,0.3);
+}
+
 @media(max-width:600px){
     .registro-contenedor{
         margin:20px;
