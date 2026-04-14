@@ -24,6 +24,12 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('./auth/registro/registro')
                         .then(m => m.Registro)
+            },
+            {
+                path: 'recuperar-contra',
+                loadComponent: () =>
+                    import('./auth/recuperar-pass/recuperar-pass')
+                        .then(m => m.RecuperarPass)
             }
         ]
     }
