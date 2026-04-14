@@ -1,0 +1,105 @@
+.app-registro{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 85vh;
+    margin:0;
+    color:#333;
+}
+
+.registro-contenedor{
+
+    background-color: #ffffff;
+    padding:40px;
+    border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.15);
+    width:100%;
+    max-width: 400px;
+    box-sizing:border-box;
+    text-align: center;
+}
+
+.registro-formulario h2{
+    margin-bottom: 30px;
+    color:#333;
+    font-size: 2em;
+    font-weight:600;
+}
+
+.input-group{
+    margin-bottom:20px;
+    text-align:left;
+}
+
+.input-group label{
+    display: block;
+    margin-bottom:8px;
+    font-size:0.95em;
+    color: #555;
+    font-weight: 500;
+}
+
+.input-group input[type="Usuario"],
+.input-group input[type="Email"],
+.input-group input[type="Contraseña"],
+.input-group input[type="RepContraseña"]{
+
+    width: 100%;
+    padding:1px 15px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    font-size: 1em;
+    box-sizing:border-box;
+    transition: all 0.3s ease;
+}
+.input-group input[type="Usuario"]:focus,
+.input-group input[type="Email"]:focus,
+.input-group input[type="Contraseña"]:focus,
+.input-group input[type="RepContraseña"]:focus{
+    border-color: #71b7e6;
+    box-shadow: 0 0 0 3px rgba(113,183,230,0.2);
+    outline:none;
+}
+
+.registro-button{
+width:100%;
+padding:15px;
+background-color: blueviolet;
+color: #ffffff;
+border:none;
+border-radius: 8px;
+font-size:1.1em;
+font-weight: 600;
+cursor:pointer;
+transition:background-color 0.3s ease, transform 0.2s ease;
+box-shadow: 0.4px 15px rgba(155,89,182,0.3);
+
+}
+
+@media(max-width:600px){
+    .registro-contenedor{
+        margin:20px;
+        padding:30px;
+    }
+
+    .registro-formulario h2{
+         font-size:1.8em;
+         margin-bottom:25px;
+    }
+
+    .input-group label {
+        font-size: 0.9em;
+    }
+
+    .input-group input{
+        padding: 10px 12px;
+        font-size: 0.95em;
+    }
+
+    .register-button{
+        padding:12px;
+        font-size:1em;
+
+    }
+
+}
