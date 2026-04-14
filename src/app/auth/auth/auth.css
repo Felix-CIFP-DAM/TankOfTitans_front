@@ -1,0 +1,16 @@
+.base-auth {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height:100%;
+    width: 100%;
+    background: rgb(31, 31, 31);
+    
+    background-size: cover;
+    background-image: url('/public/fondo_default.jpg');
+}
+
+.logotipo {
+    margin-bottom: 1rem;
+}
