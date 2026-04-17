@@ -1,4 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  /* Camouflage Palette */
+  --camo-black: #1A1A1A;
+  --camo-dark-green: #2C3525;
+  --camo-olive: #4A5D23;
+  --camo-brown: #5C4B37;
+  --camo-tan: #8B7E66;
+  
+  /* Accents */
+  --neon-amber: #FFBF00;
+  --text-primary: #EAEAEA;
+  --text-muted: #A0A0A0;
+}
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: 'Inter', "Helvetica Neue", sans-serif; background-color: var(--camo-black); color: var(--text-primary); }

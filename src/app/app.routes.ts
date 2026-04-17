@@ -32,6 +32,12 @@ export const routes: Routes = [
                         .then(m => m.RecuperarPass)
             }
         ]
+    },
+    {
+        path: 'panel-principal',
+        loadComponent: () =>
+            import('./paginas/panel-principal/panel-principal')
+                .then(m => m.PanelPrincipal)
     }
 ];
 

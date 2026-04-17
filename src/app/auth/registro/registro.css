@@ -1,4 +1,4 @@
-.app-sesion {
+.app-registro {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -13,24 +13,24 @@
 }
 
 /* ===== GLASSMORPHISM CARD ===== */
-.cuadro {
+.registro-contenedor {
     background: rgba(44, 53, 37, 0.35);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     padding: 2.5rem 2rem;
-    min-width: 380px;
-    max-width: 430px;
-    width: 100%;
     border-radius: 16px;
-    box-sizing: border-box;
-    text-align: center;
     border: 1px solid rgba(74, 93, 35, 0.4);
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    min-width: 380px;
+    max-width: 430px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
 }
 
-.cuadro h2 {
+.registro-formulario h2 {
     margin-bottom: 28px;
     color: var(--text-primary);
     font-family: 'Orbitron', sans-serif;
@@ -42,8 +42,6 @@
 
 /* ===== INPUT GROUPS ===== */
 .input-group {
-    display: flex;
-    flex-direction: column;
     margin-bottom: 1.2rem;
     text-align: left;
 }
@@ -58,7 +56,9 @@
     letter-spacing: 1px;
 }
 
-.input-group input {
+.input-group input[type="Usuario"],
+.input-group input[type="email"],
+.input-group input[type="password"] {
     width: 100%;
     padding: 12px 16px;
     background: rgba(26, 26, 26, 0.6);
@@ -74,9 +74,12 @@
 .input-group input::placeholder {
     color: var(--text-muted);
     opacity: 0.6;
+    font-size: 0.85em;
 }
 
-.input-group input:focus {
+.input-group input[type="Usuario"]:focus,
+.input-group input[type="email"]:focus,
+.input-group input[type="password"]:focus {
     border-color: var(--camo-olive);
     box-shadow: 0 0 0 3px rgba(74, 93, 35, 0.3), 0 0 12px rgba(74, 93, 35, 0.15);
     outline: none;
@@ -123,7 +126,7 @@
 }
 
 /* ===== SUBMIT BUTTON ===== */
-.sesion-button {
+.registro-button {
     width: 100%;
     padding: 14px;
     background: linear-gradient(135deg, var(--camo-olive) 0%, #3a4d1a 100%);
@@ -141,26 +144,40 @@
     margin-top: 0.5rem;
 }
 
-.sesion-button:hover {
+.registro-button:hover {
     background: linear-gradient(135deg, #5a7d2a 0%, var(--camo-olive) 100%);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(74, 93, 35, 0.5);
 }
 
-.sesion-button:active {
+.registro-button:active {
     transform: translateY(0);
     box-shadow: 0 2px 8px rgba(74, 93, 35, 0.3);
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 600px) {
-    .cuadro {
+    .registro-contenedor {
         min-width: auto;
         margin: 0 1rem;
         padding: 2rem 1.5rem;
     }
 
-    .cuadro h2 {
+    .registro-formulario h2 {
         font-size: 1.4em;
+    }
+
+    .input-group label {
+        font-size: 0.8em;
+    }
+
+    .input-group input {
+        padding: 10px 12px;
+        font-size: 0.95em;
+    }
+
+    .registro-button {
+        padding: 12px;
+        font-size: 1em;
     }
 }
