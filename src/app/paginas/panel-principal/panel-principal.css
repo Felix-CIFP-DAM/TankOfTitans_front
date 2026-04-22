@@ -11,10 +11,9 @@
     position: relative;
     overflow: hidden;
     background:
-        radial-gradient(ellipse at 15% 30%, rgba(74, 93, 35, 0.3) 0%, transparent 50%),
-        radial-gradient(ellipse at 85% 70%, rgba(92, 75, 55, 0.25) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 50%, rgba(44, 53, 37, 0.2) 0%, transparent 60%),
-        linear-gradient(160deg, #0d0d0d 0%, #1A1A1A 30%, #2C3525 60%, #1A1A1A 100%);
+        radial-gradient(ellipse at 15% 30%, rgba(75, 83, 32, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 70%, rgba(197, 160, 89, 0.15) 0%, transparent 50%),
+        linear-gradient(160deg, #0d0d0d 0%, #0F1108 40%, #1a1c10 100%);
 }
 
 /* ===== BACKGROUND PARTICLES ===== */
@@ -83,16 +82,17 @@
 
 /* ===== GAME TITLE ===== */
 .game-title-container {
-    background: rgba(44, 53, 37, 0.3);
+    background: var(--panel-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(74, 93, 35, 0.4);
-    border-radius: 16px;
+    border: 1px solid var(--border-military);
+    border-radius: 2px;
     padding: 1.5rem 3rem;
     flex: 1;
     max-width: 600px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .game-title-container::before {
@@ -202,11 +202,11 @@
     align-items: center;
     gap: 1rem;
     padding: 16px 24px;
-    background: rgba(44, 53, 37, 0.3);
+    background: var(--camo-dark-green);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(74, 93, 35, 0.35);
-    border-radius: 12px;
+    border: 1px solid var(--border-military);
+    clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
     color: var(--text-primary);
     font-family: 'Orbitron', sans-serif;
     font-size: 0.95em;
@@ -231,15 +231,14 @@
 }
 
 .menu-btn:hover {
-    background: rgba(74, 93, 35, 0.4);
-    border-color: var(--camo-olive);
+    background: var(--military-gold);
+    color: black;
     transform: translateX(8px);
-    box-shadow: 0 4px 20px rgba(74, 93, 35, 0.3);
+    box-shadow: 0 0 20px var(--military-gold);
 }
 
 .menu-btn:hover::before {
-    width: 5px;
-    background: var(--neon-amber);
+    width: 0;
 }
 
 .menu-btn:active {
@@ -280,9 +279,10 @@
 }
 
 .menu-btn-exit:hover {
-    background: rgba(139, 58, 58, 0.3);
-    border-color: #8B3A3A;
-    box-shadow: 0 4px 20px rgba(139, 58, 58, 0.3);
+    background: #822;
+    border-color: #f00;
+    color: white;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
 }
 
 .menu-btn-exit:hover::before {
@@ -309,13 +309,12 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 20px 40px 20px 30px;
-    background: rgba(92, 75, 55, 0.3);
+    padding: 20px 40px;
+    background: var(--panel-bg);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(139, 126, 102, 0.4);
-    border-radius: 12px;
-    clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%, 8% 50%);
-    color: var(--text-primary);
+    border: 1px solid var(--border-military);
+    clip-path: polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%, 10% 50%);
+    color: var(--military-gold);
     font-family: 'Orbitron', sans-serif;
     font-size: 1.1em;
     font-weight: 700;
@@ -325,30 +324,15 @@
     transition: all 0.3s ease;
     min-width: 240px;
     justify-content: center;
-    border: none;
-    position: relative;
-}
-
-.tienda-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%, 8% 50%);
-    border: 2px solid rgba(139, 126, 102, 0.4);
-    border-radius: 12px;
-    pointer-events: none;
-    transition: border-color 0.3s ease;
 }
 
 .tienda-btn:hover {
-    background: rgba(139, 126, 102, 0.4);
+    background: var(--military-gold);
+    color: black;
     transform: scale(1.05);
-    box-shadow: 0 8px 30px rgba(139, 126, 102, 0.3);
+    box-shadow: 0 0 30px rgba(197, 160, 89, 0.4);
 }
 
-.tienda-btn:hover::after {
-    border-color: var(--neon-amber);
-}
 
 .tienda-icon {
     font-size: 1.4em;

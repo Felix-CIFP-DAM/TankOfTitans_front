@@ -34,11 +34,19 @@ export const routes: Routes = [
         ]
     },
     {
-        path: 'panel-principal',
+        path: 'menu',
         loadComponent: () =>
             import('./paginas/panel-principal/panel-principal')
                 .then(m => m.PanelPrincipal)
+    },
+
+    {
+        path: 'temporal',
+        loadComponent: () => 
+            import('./temp/temporal/temporal')
+                .then(m => m.Temporal)
     }
+
 ];
 
 @NgModule ({

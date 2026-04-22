@@ -1,30 +1,55 @@
 <div class="app-registro">
     <div class="registro-contenedor">
-        <form class="registro-formulario">
+        <form class="registro-formulario" [formGroup]="formRegistro" (ngSubmit)="enviarSolicitud()">
             <h2>Registrate</h2>
             <div class="input-group">
                 <label for="Usuario">Nombre de Usuario</label>
-                <input type="Usuario" placeholder="Escribe el nombre de usuario que vas a utilizar">
+                <input placeholder="Escribe el nombre de usuario que vas a utilizar" formControlName="nombre">
+                @if (formRegistro.get('nombre')?.invalid && formRegistro.get('nombre')?.touched) {
+                    <span class="error-message">El nombre es obligatorio</span>
+                }
+            </div>
+            <div class="input-group">
+                <label for="Nickname">Nickname de Soldado</label>
+                <input placeholder="Escribe el Nickname que vas a utilizar" formControlName="nickname" />
+                @if (formRegistro.get('nickname')?.invalid && formRegistro.get('nickname')?.touched) {
+                    <span class="error-message">El nickname es obligatorio</span>
+                }
             </div>
             <div class="input-group">
                 <label for="Email">Email</label>
-                <input type="email" name="Email" placeholder="Escribe tu email">
+                <input type="email" name="Email" placeholder="Escribe tu email" formControlName="email">
+                @if (formRegistro.get('email')?.invalid && formRegistro.get('email')?.touched) {
+                    <span class="error-message">Introduce un email válido</span>
+                }
             </div>
             <div class="input-group">
                 <label for="Contraseña">Contraseña</label>
-                <input type="password" name="Contraseña" placeholder="Escribe Contraseña (-Minimo de 8 caracteres -Maximo 12 caracteres -Minimo una mayuscula -Minimo una minuscula - Minimo un caracter especial (Ejem:+,%,@))">
+                <input type="password" name="Contraseña"
+                    placeholder="Escribe Contraseña (-Minimo de 8 caracteres -Maximo 12 caracteres -Minimo una mayuscula -Minimo una minuscula - Minimo un caracter especial (Ejem:+,%,@))"
+                    formControlName="password">
+                @if (formRegistro.get('password')?.invalid && formRegistro.get('password')?.touched) {
+                    <span class="error-message">La contraseña no cumple con los requisitos de seguridad</span>
+                }
             </div>
             <div class="input-group">
                 <label for="RepContraseña">Repetir Contraseña</label>
-                <input type="password" name="RepContraseña" placeholder="Repita la contraseña">
+                <input type="password" name="RepContraseña" placeholder="Repita la contraseña"
+                    formControlName="repPassword">
+                @if (formRegistro.get('repPassword')?.invalid && formRegistro.get('repPassword')?.touched) {
+                    <span class="error-message">Debe repetir la contraseña</span>
+                }
+                @if (formRegistro.hasError('mismatch') && formRegistro.get('repPassword')?.touched) {
+                    <span class="error-message">Las contraseñas no coinciden</span>
+                }
             </div>
             <div class="enlaces elemento-formulario">
                 <p>
                     <a routerLink="/sesion">¿Ya estas registrado? Haz Login</a>
                 </p>
             </div>
-            <button type="submit" class="registro-button">      
-                Enviar 
+            <button type="submit" class="registro-button">
+                Enviar
             </button>
         </form>
 

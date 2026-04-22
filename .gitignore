@@ -27,19 +27,20 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-angular.json
-package.json
-tsconfig.app.json
-tsconfig.json
-tsconfig.spec.json
-.editorconfig
-app.config.ts
-app.css
-app.html
-app.spec.ts
-app.ts
+#angular.json
+# package.json
+# tsconfig.app.json
+# tsconfig.json
+# tsconfig.spec.json
+# .editorconfig
+# app.config.ts
+# app.css
+# app.html
+# app.spec.ts
+# app.ts
 
 
 /src/custom-theme.scss
 /.vscode/
+/src/app/temp/
 

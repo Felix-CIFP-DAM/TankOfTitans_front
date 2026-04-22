@@ -14,20 +14,30 @@
 
 /* ===== GLASSMORPHISM CARD ===== */
 .cuadro {
-    background: rgba(44, 53, 37, 0.35);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: var(--panel-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     padding: 2.5rem 2rem;
     min-width: 380px;
     max-width: 430px;
     width: 100%;
-    border-radius: 16px;
+    border-radius: 2px;
     box-sizing: border-box;
     text-align: center;
-    border: 1px solid rgba(74, 93, 35, 0.4);
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-military);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    position: relative;
+}
+
+.cuadro::before {
+    content: 'ACCESS CONTROL // SECTOR 0';
+    position: absolute;
+    top: -20px;
+    left: 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10px;
+    color: var(--military-gold);
+    letter-spacing: 2px;
 }
 
 .cuadro h2 {
@@ -126,10 +136,10 @@
 .sesion-button {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, var(--camo-olive) 0%, #3a4d1a 100%);
+    background: var(--camo-olive);
     color: #fff;
-    border: 1px solid rgba(74, 93, 35, 0.6);
-    border-radius: 8px;
+    border: 1px solid var(--military-gold);
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
     font-size: 1.05em;
     font-weight: 700;
     font-family: 'Orbitron', sans-serif;
@@ -137,19 +147,18 @@
     letter-spacing: 2px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(74, 93, 35, 0.3);
     margin-top: 0.5rem;
 }
 
 .sesion-button:hover {
-    background: linear-gradient(135deg, #5a7d2a 0%, var(--camo-olive) 100%);
+    background: var(--military-gold);
+    color: black;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(74, 93, 35, 0.5);
+    box-shadow: 0 0 15px var(--military-gold);
 }
 
 .sesion-button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(74, 93, 35, 0.3);
 }
 
 /* ===== RESPONSIVE ===== */
