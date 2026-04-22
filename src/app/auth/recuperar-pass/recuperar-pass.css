@@ -1,4 +1,4 @@
-.app-sesion {
+.app-recuperar {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -30,7 +30,7 @@
 }
 
 .cuadro::before {
-    content: 'ACCESS CONTROL // SECTOR 0';
+    content: 'COMMUNICATIONS // ENCRYPTED';
     position: absolute;
     top: -20px;
     left: 0;
@@ -94,10 +94,6 @@
 }
 
 /* ===== LINKS ===== */
-.enlaces {
-    margin: 1rem 0;
-}
-
 .enlaces a {
     cursor: pointer;
     text-decoration: none;
@@ -133,7 +129,7 @@
 }
 
 /* ===== SUBMIT BUTTON ===== */
-.sesion-button {
+.recuperar-button {
     width: 100%;
     padding: 14px;
     background: var(--camo-olive);
@@ -150,15 +146,24 @@
     margin-top: 0.5rem;
 }
 
-.sesion-button:hover {
+.recuperar-button:hover {
     background: var(--military-gold);
     color: black;
     transform: translateY(-2px);
     box-shadow: 0 0 15px var(--military-gold);
 }
 
-.sesion-button:active {
+.recuperar-button:active {
     transform: translateY(0);
+}
+
+/* ===== TEXT ===== */
+.texto {
+    font-style: italic;
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 0.9em;
+    line-height: 1.5;
 }
 
 /* ===== RESPONSIVE ===== */

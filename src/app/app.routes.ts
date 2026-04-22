@@ -32,7 +32,21 @@ export const routes: Routes = [
                         .then(m => m.RecuperarPass)
             }
         ]
+    },
+    {
+        path: 'menu',
+        loadComponent: () =>
+            import('./paginas/panel-principal/panel-principal')
+                .then(m => m.PanelPrincipal)
+    },
+
+    {
+        path: 'temporal',
+        loadComponent: () => 
+            import('./temp/temporal/temporal')
+                .then(m => m.Temporal)
     }
+
 ];
 
 @NgModule ({

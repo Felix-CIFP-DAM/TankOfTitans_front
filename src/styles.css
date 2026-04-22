@@ -1,4 +1,114 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+:root {
+  /* Camouflage Palette */
+  --camo-black: #0F1108;
+  --camo-dark-green: #2F3519;
+  --camo-olive: #4B5320;
+  --camo-brown: #5C4B37;
+  --camo-tan: #8B7E66;
+  
+  /* Military Accents */
+  --military-gold: #C5A059;
+  --hazard-orange: #FF8C00;
+  --neon-amber: #FFBF00;
+  --text-primary: #E0E5D5;
+  --text-muted: #A0A0A0;
+  --border-military: #5D634F;
+  --panel-bg: rgba(20, 22, 15, 0.85);
+}
+
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  background-color: var(--camo-black); 
+  color: var(--text-primary);
+  font-family: 'Inter', "Helvetica Neue", sans-serif;
+}
+
+/* CRT SCANLINE EFFECT */
+body::before {
+  content: " ";
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
+              linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 3px, 3px 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.6;
+}
+
+/* CRT VIGNETTE */
+body::after {
+  content: " ";
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.4) 100%);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* UTILITIES */
+.font-mono { font-family: 'Courier New', Courier, monospace !important; }
+.rugged-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-military);
+  border-radius: 2px;
+  backdrop-filter: blur(8px);
+}
+.btn-poly {
+  clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+  transition: all 0.3s ease;
+}
+.btn-poly:hover {
+  background-color: var(--military-gold) !important;
+  color: black !important;
+  box-shadow: 0 0 15px var(--military-gold);
+}
+
+/* SNACKBAR STYLES */
+.snack-bar-exito {
+  --mdc-snackbar-container-color: #2F3519 !important;
+  --mdc-snackbar-supporting-text-color: #27F59C !important;
+  border: 1px solid #27F59C;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.snack-bar-error {
+  --mdc-snackbar-container-color: #351919 !important;
+  --mdc-snackbar-supporting-text-color: #F53838 !important;
+  border: 1px solid #F53838;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.snack-bar-advertencia {
+  --mdc-snackbar-container-color: #352D19 !important;
+  --mdc-snackbar-supporting-text-color: #F5C127 !important;
+  border: 1px solid #F5C127;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.snack-bar-info {
+  --mdc-snackbar-container-color: #192D35 !important;
+  --mdc-snackbar-supporting-text-color: #27F5F5 !important;
+  border: 1px solid #27F5F5;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* VALIDATION ERROR MESSAGES */
+.error-message {
+  color: #F53838;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  display: block;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
