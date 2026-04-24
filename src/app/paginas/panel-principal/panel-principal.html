@@ -20,10 +20,10 @@
         <div class="game-logo-container">
             <img src="logo_oficial.png" alt="">
         </div>
-        <div class="perfil-container" id="perfil-btn">
+        <div class="perfil-container" id="perfil-btn" (click)="abrirPerfil()">
             <p
                 style="color: var(--military-gold); font-size: 9px; margin-bottom: 5px; font-family: 'Courier New', Courier, monospace; text-align: right;">
-                OPERATOR STATUS: {{status}}</p>
+                OPERATOR STATUS: {{status}} // ID: {{nickname}}</p>
             <div class="perfil-circle">
                 <span class="perfil-icon"><img [src]="perfil_imagen" class="icono-boton" /></span>
             </div>
@@ -33,12 +33,12 @@
 
     <!-- Menu Buttons -->
     <nav class="menu-buttons">
-        <button class="menu-btn" id="host-game-btn">
+        <button class="menu-btn" id="host-game-btn" (click)="abrirHost()">
             <span class="btn-icon"><img src="play_icono.png" class="icono-boton" /></span>
             <span class="btn-text">Host Game</span>
             <span class="btn-arrow">→</span>
         </button>
-        <button class="menu-btn" id="jugar-amigos-btn">
+        <button class="menu-btn" id="jugar-amigos-btn" (click)="abrirUnirse()">
             <span class="btn-icon"><img src="amigos_icono.png" class="icono-boton" /></span>
             <span class="btn-text">Jugar con Amigos</span>
             <span class="btn-arrow">→</span>
@@ -48,7 +48,7 @@
             <span class="btn-text">Opciones</span>
             <span class="btn-arrow">→</span>
         </button>
-        <button class="menu-btn menu-btn-exit" id="exit-btn">
+        <button class="menu-btn menu-btn-exit" id="exit-btn" (click)="salir()">
             <span class="btn-icon"><img src="exit_icono.png" class="icono-boton" /></span>
             <span class="btn-text">Exit</span>
             <span class="btn-arrow">→</span>
@@ -63,4 +63,23 @@
             <span class="tienda-chevron">❯</span>
         </button>
     </div>
+
+    <!-- Modals Overlays -->
+    <app-sala-host
+        *ngIf="mostrarHostModal"
+        (cerrar)="cerrarModales()"
+        (salaCreada)="onSalaCreada($event)">
+    </app-sala-host>
+
+    <app-sala-unirse
+        *ngIf="mostrarUnirseModal"
+        (cerrar)="cerrarModales()"
+        (unido)="onUnidoASala($event)">
+    </app-sala-unirse>
+
+    <app-perfil-usuario
+        *ngIf="mostrarPerfilModal"
+        (cerrar)="cerrarModales()"
+        (perfilActualizado)="onPerfilActualizado($event)">
+    </app-perfil-usuario>
 </div>

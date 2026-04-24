@@ -1,0 +1,92 @@
+<div class="modal-overlay" (click)="onCerrar()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-header-accent"></div>
+      <div class="modal-title-row">
+        <span class="modal-tag">// CREAR OPERACIÓN</span>
+        <button class="modal-close-btn" (click)="onCerrar()" id="host-cerrar-btn">✕</button>
+      </div>
+      <h2 class="modal-title">Host Game</h2>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+
+      <!-- Nombre de sala -->
+      <div class="field-group">
+        <label class="field-label" for="nombre-sala-input">NOMBRE DE SALA</label>
+        <input
+          id="nombre-sala-input"
+          class="field-input"
+          type="text"
+          [(ngModel)]="nombreSala"
+          placeholder="Introduce el nombre de la operación..."
+          maxlength="40"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Tipo de sala -->
+      <div class="field-group">
+        <label class="field-label">TIPO DE PARTIDA</label>
+        <div class="tipo-row">
+          <button
+            class="tipo-btn"
+            [class.active]="!esPrivada"
+            (click)="togglePrivada('publica')"
+            id="host-publica-btn"
+          >
+            <span class="tipo-icon">◎</span>
+            <span>PÚBLICA</span>
+          </button>
+          <button
+            class="tipo-btn"
+            [class.active]="esPrivada"
+            (click)="togglePrivada('privada')"
+            id="host-privada-btn"
+          >
+            <span class="tipo-icon">🔒</span>
+            <span>PRIVADA</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contraseña (solo privada) -->
+      <div class="field-group contrasena-group" [class.visible]="esPrivada">
+        <label class="field-label" for="host-contrasena-input">CONTRASEÑA DE ACCESO</label>
+        <input
+          id="host-contrasena-input"
+          class="field-input"
+          type="password"
+          [(ngModel)]="contrasena"
+          placeholder="Contraseña de la sala..."
+          maxlength="30"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Error -->
+      <div class="modal-error" *ngIf="error">
+        <span class="error-icon">⚠</span> {{ error }}
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="modal-cancel-btn" (click)="onCerrar()" id="host-cancelar-btn">CANCELAR</button>
+      <button
+        class="modal-action-btn"
+        (click)="crear()"
+        [disabled]="cargando"
+        id="host-crear-btn"
+      >
+        <span *ngIf="!cargando">CREAR SALA →</span>
+        <span *ngIf="cargando" class="cargando-text">DESPLEGANDO...</span>
+      </button>
+    </div>
+
+  </div>
+</div>

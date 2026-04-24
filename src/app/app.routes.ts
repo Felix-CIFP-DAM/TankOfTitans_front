@@ -4,7 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 export const routes: Routes = [
     {
         path: '',
-        loadComponent: () => 
+        loadComponent: () =>
             import('./auth/auth/auth')
                 .then(m => m.Auth),
         children: [
@@ -37,20 +37,40 @@ export const routes: Routes = [
         path: 'menu',
         loadComponent: () =>
             import('./paginas/panel-principal/panel-principal')
-                .then(m => m.PanelPrincipal)
+                .then(m => m.PanelPrincipal),
+        children: [
+            {
+                path: 'perfil',
+                loadComponent: () =>
+                    import('./paginas/perfil-usuario/perfil-usuario')
+                        .then(m => m.PerfilUsuario)
+            },
+            {
+                path: 'sala-host',
+                loadComponent: () =>
+                    import('./paginas/sala-host/sala-host')
+                        .then(m => m.SalaHost)
+            },
+            {
+                path: 'sala-unirse',
+                loadComponent: () =>
+                    import('./paginas/sala-unirse/sala-unirse')
+                        .then(m => m.SalaUnirse)
+            }
+        ]
     },
 
     {
         path: 'temporal',
-        loadComponent: () => 
+        loadComponent: () =>
             import('./temp/temporal/temporal')
                 .then(m => m.Temporal)
     }
 
 ];
 
-@NgModule ({
+@NgModule({
     imports: [RouterModule.forRoot(routes)],
     exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

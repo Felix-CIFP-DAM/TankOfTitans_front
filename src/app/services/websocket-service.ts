@@ -1,31 +1,58 @@
-import { Injectable } from '@angular/core';
-import SockJS from 'sockjs-client'
-import * as Stomp from 'stompjs'
+import { Injectable, NgZone } from '@angular/core';
+import { io, Socket} from 'socket.io-client';
+import { Observable, Subscriber} from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebsocketService {
 
-  private stompClient: any;
+  private socket: Socket;
 
-  connect() {
-    const socket = new SockJS('http://51.103.219.26:8080/api/ws-endpoint');
-    this.stompClient = Stomp.over(socket);
-    this.stompClient.connect({}, (frame: any) => {
-      console.log('Conectado: ' + frame);
-      this.stompClient.subscribe('/topic/game-updates', (message: any) => {
-        console.log('Mensaje recibido: ' + message.body);
-      });
+  constructor(private ngZone: NgZone) {
+    this.socket = io(environment.socketUrl, {
+      transports: ['websocket'],
+      autoConnect: false
     });
-
   }
 
-  sendMsg(msg: any) {
-    if (this.stompClient && this.stompClient.connected) {
-      this.stompClient.send("/app/move", {}, JSON.stringify(msg));
-    } else {
-      console.warn('No se pudo enviar el mensaje: STOMP no está conectado.');
+  connect() {
+    this.socket.connect();
+
+    this.socket.on('connect', () => {
+      console.log('Conectado al servidor de lógica (Node.js)');
+    });
+
+
+    this.socket.on('disconnect', () => {
+      console.warn('Desconectado del servidor de sockets');
+    });
+  }
+
+  emit(evento: string, datos: any) {
+    this.socket.emit(evento, datos);
+  }
+
+  listen(evento: string): Observable<any>{
+    return new Observable((subscriber) => {
+      const handler = (datos: any) => {
+        this.ngZone.run(() => {
+          subscriber.next(datos);
+        });
+      };
+
+      this.socket.on(evento, handler);
+
+      return () => {
+        this.socket.off(evento, handler);
+      };
+    });
+  }
+
+  disconnect() {
+    if(this.socket) {
+      this.socket.disconnect();
     }
   }
 
