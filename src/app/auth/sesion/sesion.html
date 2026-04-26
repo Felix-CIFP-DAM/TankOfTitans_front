@@ -7,19 +7,19 @@
                 <label>Nickname de soldado</label>
                 <input type="text" placeholder="Escribe tu nickname de soldado" formControlName="nickname" />
                 @if (loginForm.get('nickname')?.invalid && loginForm.get('nickname')?.touched) {
-                    <span class="error-message">El nickname es obligatorio</span>
+                <span class="error-message">El nickname es obligatorio</span>
                 }
             </div>
             <div class="input-group">
                 <label>Contraseña</label>
                 <input type="password" placeholder="Escribe tu contraseña" formControlName="password" />
                 @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-                    <span class="error-message">La contraseña es obligatoria</span>
+                <span class="error-message">La contraseña es obligatoria</span>
                 }
             </div>
             <div class="enlaces elemento-formulario">
                 <p>
-                    <a routerLink="/registro">¿No estas registrado?</a>
+                    <a routerLink="/registro">¿No estás registrado?</a>
                 </p>
                 <p>
                     <a routerLink="/recuperar-contra">Recupera tu contraseña</a>

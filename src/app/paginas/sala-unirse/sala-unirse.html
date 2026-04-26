@@ -1,0 +1,103 @@
+<div class="modal-overlay" (click)="onCerrar()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-header-accent"></div>
+      <div class="modal-title-row">
+        <span class="modal-tag">// OPERACIONES ACTIVAS</span>
+        <button class="modal-close-btn" (click)="onCerrar()" id="unirse-cerrar-btn">✕</button>
+      </div>
+      <div class="modal-title-bar">
+        <h2 class="modal-title">Unirse a Partida</h2>
+        <button class="refresh-btn" (click)="refrescarSalas()" [disabled]="cargandoSalas" id="unirse-refresh-btn" title="Refrescar salas">
+          <span [class.spinning]="cargandoSalas">↺</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista de salas -->
+    <div class="salas-container">
+
+      <!-- Cargando -->
+      <div class="salas-loading" *ngIf="cargandoSalas">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-label">ESCANEANDO OPERACIONES...</span>
+      </div>
+
+      <!-- Sin salas -->
+      <div class="salas-empty" *ngIf="!cargandoSalas && salas.length === 0">
+        <span class="empty-icon">◈</span>
+        <p>No hay partidas disponibles</p>
+        <span>Sé el primero en crear una operación</span>
+      </div>
+
+      <!-- Lista -->
+      <div class="sala-item"
+           *ngFor="let sala of salas; let i = index"
+           [class.selected]="salaSeleccionada?.id === sala.id"
+           [class.llena]="sala.jugadoresActuales >= sala.jugadoresMaximos"
+           (click)="seleccionarSala(sala)"
+           [id]="'sala-item-' + i">
+
+        <div class="sala-info">
+          <div class="sala-nombre-row">
+            <span class="sala-lock" *ngIf="sala.esPrivada">🔒</span>
+            <span class="sala-nombre">{{ sala.nombre }}</span>
+          </div>
+          <div class="sala-capacidad-bar">
+            <div class="sala-capacidad-fill" [style.width.%]="capacidadPorcentaje(sala)"></div>
+          </div>
+        </div>
+
+        <div class="sala-meta">
+          <span class="sala-players"
+                [class.sala-llena]="sala.jugadoresActuales >= sala.jugadoresMaximos">
+            {{ sala.jugadoresActuales }}/{{ sala.jugadoresMaximos }}
+          </span>
+          <span class="sala-tipo" [class.privada]="sala.esPrivada">
+            {{ sala.esPrivada ? 'PRIVADA' : 'PÚBLICA' }}
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Campo contraseña si sala privada seleccionada -->
+    <div class="contrasena-row" [class.visible]="salaSeleccionada?.esPrivada">
+      <label class="field-label" for="unirse-contrasena-input">CONTRASEÑA DE ACCESO</label>
+      <input
+        id="unirse-contrasena-input"
+        class="field-input"
+        type="password"
+        [(ngModel)]="contrasena"
+        placeholder="Contraseña de la sala..."
+        maxlength="30"
+        autocomplete="off"
+      />
+    </div>
+
+    <!-- Error -->
+    <div class="modal-error" *ngIf="error">
+      <span class="error-icon">⚠</span> {{ error }}
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="modal-cancel-btn" (click)="onCerrar()" id="unirse-cancelar-btn">CANCELAR</button>
+      <button
+        class="modal-action-btn"
+        (click)="unirse()"
+        [disabled]="cargando || !salaSeleccionada"
+        id="unirse-confirmar-btn"
+      >
+        <span *ngIf="!cargando">UNIRSE →</span>
+        <span *ngIf="cargando" class="cargando-text">INFILTRANDO...</span>
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,100 @@
+<div class="modal-overlay" (click)="onCerrar()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-header-accent"></div>
+      <div class="modal-title-row">
+        <span class="modal-tag">// EXPEDIENTE DE OPERADOR</span>
+        <button class="modal-close-btn" (click)="onCerrar()" id="perfil-cerrar-btn">✕</button>
+      </div>
+      <h2 class="modal-title">Perfil de Usuario</h2>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+
+      <!-- Avatar Selection -->
+      <div class="field-group">
+        <label class="field-label">SELECCIONAR ICONO DE UNIDAD</label>
+        <div class="avatar-grid-container">
+          <div class="avatar-grid">
+            <div class="avatar-item"
+                 *ngFor="let avatar of avatares"
+                 [class.selected]="perfil.icono === avatar"
+                 (click)="seleccionarAvatar(avatar)">
+              <img [src]="'perfiles/' + avatar" [alt]="avatar" class="avatar-img">
+              <div class="avatar-tooltip">{{ getIconName(avatar) }}</div>
+              <div class="avatar-overlay" *ngIf="perfil.icono === avatar">
+                <span class="check-icon">✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User ID / Nickname -->
+      <div class="inputs-row">
+        <div class="field-group flex-1">
+          <label class="field-label" for="perfil-nickname-input">NICKNAME (ID)</label>
+          <input
+            id="perfil-nickname-input"
+            class="field-input"
+            type="text"
+            [(ngModel)]="perfil.nickname"
+            placeholder="Nickname..."
+            maxlength="20"
+          />
+        </div>
+        <div class="field-group flex-1">
+          <label class="field-label" for="perfil-nombre-input">NOMBRE REAL</label>
+          <input
+            id="perfil-nombre-input"
+            class="field-input"
+            type="text"
+            [(ngModel)]="perfil.nombre"
+            placeholder="Nombre..."
+            maxlength="50"
+          />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <label class="field-label" for="perfil-pass-input">CAMBIAR CONTRASEÑA (DEJAR EN BLANCO PARA NO CAMBIAR)</label>
+        <div class="password-input-wrapper">
+          <input
+            id="perfil-pass-input"
+            class="field-input"
+            type="password"
+            [(ngModel)]="contrasena"
+            placeholder="Nueva contraseña..."
+            maxlength="30"
+          />
+          <span class="pass-warning" *ngIf="contrasena.length > 0">⚠ CAMBIARÁ SU CLAVE DE ACCESO</span>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="modal-error" *ngIf="error">
+        <span class="error-icon">⚠</span> {{ error }}
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="modal-cancel-btn" (click)="onCerrar()" id="perfil-cancelar-btn">DESCARTAR</button>
+      <button
+        class="modal-action-btn"
+        (click)="guardar()"
+        [disabled]="cargando"
+        id="perfil-guardar-btn"
+      >
+        <span *ngIf="!cargando">ACTUALIZAR EXPEDIENTE →</span>
+        <span *ngIf="cargando" class="cargando-text">PROCESANDO...</span>
+      </button>
+    </div>
+
+  </div>
+</div>
