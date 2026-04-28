@@ -1,0 +1,46 @@
+.panel-admin {
+    display: flex;
+    height: 100%;
+}
+
+.menu-lateral {
+    background-color: black;
+    min-width: 200px;
+    max-width: 200px;
+    border-right: 2px solid white;
+}
+
+.logo {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.logo img {
+    width: 60px;
+    height: 60px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu-item {
+    transition: 0.3s ease;
+    text-align: center;
+    height: 30px;
+    width: 150px;
+    margin: 0.3rem;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.menu-item:hover {
+    transition: 0.3s ease;
+    background-color: aliceblue;
+}
+
+.content-panel {
+    width: 100%;
+}

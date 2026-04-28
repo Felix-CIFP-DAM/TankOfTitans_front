@@ -27,7 +27,7 @@ export class PanelPrincipal implements OnInit {
   constructor(
     private router: Router,
     private dataService: DataService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.actualizarDatosLocales();
@@ -48,7 +48,7 @@ export class PanelPrincipal implements OnInit {
         this.perfil_imagen = 'perfiles/' + nombreArchivo;
       }
     }
-    
+
     if (nick) this.nickname = nick;
   }
 
@@ -83,7 +83,7 @@ export class PanelPrincipal implements OnInit {
   onPerfilActualizado(perfil: Perfil) {
     // Actualizamos inmediatamente con los datos recibidos del modal
     if (perfil.nickname) this.nickname = perfil.nickname;
-    
+
     if (perfil.icono) {
       const nombreArchivo = perfil.icono.split('/').pop() || perfil.icono;
       if (nombreArchivo === 'perfil_icono.png') {
@@ -92,7 +92,7 @@ export class PanelPrincipal implements OnInit {
         this.perfil_imagen = 'perfiles/' + nombreArchivo;
       }
     }
-    
+
     // También refrescamos desde storage por si acaso
     this.actualizarDatosLocales();
   }
@@ -104,6 +104,13 @@ export class PanelPrincipal implements OnInit {
 
   onUnidoASala(res: any) {
     console.log('Unido a sala:', res);
+  }
+
+  irTienda() {
+    this.router.navigate(['/tienda']);
+  }
+  irAdministracion() {
+    this.router.navigate(['/panelAdmin']);
   }
 
   salir() {

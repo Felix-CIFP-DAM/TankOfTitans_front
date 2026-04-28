@@ -48,6 +48,11 @@
             <span class="btn-text">Opciones</span>
             <span class="btn-arrow">→</span>
         </button>
+        <button class="menu-btn" id="administracion-btn" (click)="irAdministracion()">
+            <span class="btn-icon"><img src="report_icono.png" class="icono-boton" /></span>
+            <span class="btn-text">Administracion</span>
+            <span class="btn-arrow">→</span>
+        </button>
         <button class="menu-btn menu-btn-exit" id="exit-btn" (click)="salir()">
             <span class="btn-icon"><img src="exit_icono.png" class="icono-boton" /></span>
             <span class="btn-text">Exit</span>
@@ -57,7 +62,7 @@
 
     <!-- Store Button -->
     <div class="tienda-section">
-        <button class="tienda-btn" id="tienda-btn">
+        <button class="tienda-btn" id="tienda-btn" (click)="irTienda()">
             <span class="tienda-icon"><img src="market_icono.png" class="icono-boton" /></span>
             <span class="tienda-text">TIENDA</span>
             <span class="tienda-chevron">❯</span>
@@ -65,21 +70,13 @@
     </div>
 
     <!-- Modals Overlays -->
-    <app-sala-host
-        *ngIf="mostrarHostModal"
-        (cerrar)="cerrarModales()"
-        (salaCreada)="onSalaCreada($event)">
+    <app-sala-host *ngIf="mostrarHostModal" (cerrar)="cerrarModales()" (salaCreada)="onSalaCreada($event)">
     </app-sala-host>
 
-    <app-sala-unirse
-        *ngIf="mostrarUnirseModal"
-        (cerrar)="cerrarModales()"
-        (unido)="onUnidoASala($event)">
+    <app-sala-unirse *ngIf="mostrarUnirseModal" (cerrar)="cerrarModales()" (unido)="onUnidoASala($event)">
     </app-sala-unirse>
 
-    <app-perfil-usuario
-        *ngIf="mostrarPerfilModal"
-        (cerrar)="cerrarModales()"
+    <app-perfil-usuario *ngIf="mostrarPerfilModal" (cerrar)="cerrarModales()"
         (perfilActualizado)="onPerfilActualizado($event)">
     </app-perfil-usuario>
 </div>

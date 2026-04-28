@@ -59,13 +59,27 @@ export const routes: Routes = [
             }
         ]
     },
-
     {
-        path: 'temporal',
+        path: 'tienda',
         loadComponent: () =>
-            import('./temp/temporal/temporal')
-                .then(m => m.Temporal)
+            import('./paginas/tienda/tienda')
+                .then(m => m.Tienda)
+    },
+    {
+        path: 'panelAdmin',
+        loadComponent: () =>
+            import('./paginas/panel-admin/panel-admin')
+                .then(m => m.PanelAdmin),
+        children: [
+            {
+                path: 'crearTienda',
+                loadComponent: () =>
+                    import('./components/crear-tienda/crear-tienda')
+                        .then(m => m.CrearTienda)
+            }
+        ]
     }
+
 
 ];
 
