@@ -59,13 +59,45 @@ export const routes: Routes = [
             }
         ]
     },
-
     {
-        path: 'temporal',
+        path: 'tienda',
         loadComponent: () =>
-            import('./temp/temporal/temporal')
-                .then(m => m.Temporal)
+            import('./paginas/tienda/tienda')
+                .then(m => m.Tienda)
+    },
+    {
+        path: 'panelAdmin',
+        loadComponent: () =>
+            import('./paginas/panel-admin/panel-admin')
+                .then(m => m.PanelAdmin),
+        children: [
+            {
+                path: 'crearTienda',
+                loadComponent: () =>
+                    import('./components/crear-tienda/crear-tienda')
+                        .then(m => m.CrearTienda)
+            },
+            {
+                path: 'crearMapas',
+                loadComponent: () =>
+                    import('./components/crear-mapas/crear-mapas')
+                        .then(m => m.CrearMapas)
+            }
+        ]
+    },
+    {
+        path: 'configuracion',
+        loadComponent: () =>
+            import('./paginas/configuracion/configuracion')
+                .then(m => m.Configuracion)
+    },
+    {
+        path: 'preparacion',
+        loadComponent: () =>
+            import('./paginas/preparacion/preparacion')
+                .then(m => m.Preparacion)
     }
+
 
 ];
 

@@ -1,0 +1,42 @@
+<!-- Panel de administracion de la pagina web -->
+<div class="panel-admin">
+    <aside class="menu-lateral">
+        <div class="logo-container">
+            <img src="logo_oficial.png" alt="Logo" class="admin-logo">
+            <h2 class="admin-title">HQ CONTROL</h2>
+        </div>
+
+        <nav class="admin-nav">
+            <div class="nav-item btn-poly" routerLink="../menu" routerLinkActive="active">
+                <i class="fa fa-home"></i>
+                <span>ESTACIÓN BASE</span>
+            </div>
+            <div class="nav-item btn-poly" routerLink="usuarios" routerLinkActive="active">
+                <i class="fa fa-users"></i>
+                <span>OPERATIVOS</span>
+            </div>
+            <div class="nav-item btn-poly" routerLink="crearTienda" routerLinkActive="active">
+                <i class="fa fa-box"></i>
+                <span>ARMERÍA</span>
+            </div>
+            <div class="nav-item btn-poly" routerLink="crearMapas" routerLinkActive="active">
+                <i class="fa fa-maps"></i>
+                <span>MAPAS</span>
+            </div>
+            <div class="nav-item btn-poly" routerLink="config" routerLinkActive="active">
+                <i class="fa fa-cogs"></i>
+                <span>PROTOCOLO</span>
+            </div>
+        </nav>
+
+        <div class="admin-footer">
+            <span class="status-indicator"></span> SISTEMA ONLINE
+        </div>
+    </aside>
+
+    <main class="content-panel">
+        <div class="content-viewport">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

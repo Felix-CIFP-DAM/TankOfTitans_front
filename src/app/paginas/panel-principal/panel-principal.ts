@@ -7,6 +7,7 @@ import { SalaUnirse } from '../sala-unirse/sala-unirse';
 import { PerfilUsuario } from '../perfil-usuario/perfil-usuario';
 import { DataService } from '../../services/data-service';
 import { Perfil } from '../../modelos/Perfil';
+import { AudioService } from '../../services/audio-service';
 
 @Component({
   selector: 'app-panel-principal',
@@ -19,18 +20,20 @@ export class PanelPrincipal implements OnInit {
   perfil_imagen: string = "perfil_icono.png";
   nickname: string = "OPERATOR";
 
-  // Modal visibility
+  // Modal visibilitys
   mostrarHostModal: boolean = false;
   mostrarUnirseModal: boolean = false;
   mostrarPerfilModal: boolean = false;
 
   constructor(
     private router: Router,
-    private dataService: DataService
-  ) {}
+    private dataService: DataService,
+    private audioService: AudioService
+  ) { }
 
   ngOnInit() {
     this.actualizarDatosLocales();
+    this.audioService.playMusic('audio/theme.mp3');
   }
 
   actualizarDatosLocales() {
@@ -48,7 +51,7 @@ export class PanelPrincipal implements OnInit {
         this.perfil_imagen = 'perfiles/' + nombreArchivo;
       }
     }
-    
+
     if (nick) this.nickname = nick;
   }
 
@@ -83,7 +86,7 @@ export class PanelPrincipal implements OnInit {
   onPerfilActualizado(perfil: Perfil) {
     // Actualizamos inmediatamente con los datos recibidos del modal
     if (perfil.nickname) this.nickname = perfil.nickname;
-    
+
     if (perfil.icono) {
       const nombreArchivo = perfil.icono.split('/').pop() || perfil.icono;
       if (nombreArchivo === 'perfil_icono.png') {
@@ -92,7 +95,7 @@ export class PanelPrincipal implements OnInit {
         this.perfil_imagen = 'perfiles/' + nombreArchivo;
       }
     }
-    
+
     // También refrescamos desde storage por si acaso
     this.actualizarDatosLocales();
   }
@@ -104,6 +107,16 @@ export class PanelPrincipal implements OnInit {
 
   onUnidoASala(res: any) {
     console.log('Unido a sala:', res);
+  }
+
+  irTienda() {
+    this.router.navigate(['/tienda']);
+  }
+  irAdministracion() {
+    this.router.navigate(['/panelAdmin']);
+  }
+  irConfiguracion() {
+    this.router.navigate(['/configuracion']);
   }
 
   salir() {

@@ -18,19 +18,16 @@
 }
 
 .modal-panel {
-  background:
-    linear-gradient(145deg, rgba(20, 23, 10, 0.97) 0%, rgba(13, 16, 8, 0.97) 100%);
-  border: 1px solid rgba(74, 93, 35, 0.5);
-  border-top: 2px solid var(--neon-amber, #ffbf00);
+  background: var(--panel-bg);
+  border: 1px solid var(--border-military);
+  border-top: 2px solid var(--neon-amber);
   width: 100%;
   max-width: 520px;
-  border-radius: 4px;
+  border-radius: 2px;
   overflow: hidden;
   animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow:
-    0 0 60px rgba(0, 0, 0, 0.8),
-    0 0 30px rgba(74, 93, 35, 0.15),
-    inset 0 1px 0 rgba(255, 191, 0, 0.1);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), 0 0 30px var(--glow-border), inset 0 1px 0 rgba(255, 191, 0, 0.1);
+  transition: background 0.5s ease, border-color 0.5s ease;
 }
 
 @keyframes modalSlideIn {
@@ -46,7 +43,7 @@
 
 .modal-header-accent {
   height: 3px;
-  background: linear-gradient(90deg, transparent, var(--camo-olive, #4a5d23), var(--neon-amber, #ffbf00), var(--camo-olive, #4a5d23), transparent);
+  background: linear-gradient(90deg, transparent, var(--camo-olive), var(--neon-amber), var(--camo-olive), transparent);
 }
 
 .modal-title-row {
@@ -59,14 +56,14 @@
 .modal-tag {
   font-family: 'Courier New', monospace;
   font-size: 0.7em;
-  color: var(--camo-olive, #4a5d23);
+  color: var(--camo-olive);
   letter-spacing: 2px;
 }
 
 .modal-close-btn {
   background: transparent;
-  border: 1px solid rgba(180, 60, 60, 0.3);
-  color: rgba(255, 80, 80, 0.7);
+  border: 1px solid var(--danger-bg);
+  color: var(--danger-border);
   width: 28px;
   height: 28px;
   border-radius: 2px;
@@ -79,22 +76,22 @@
 }
 
 .modal-close-btn:hover {
-  background: rgba(180, 60, 60, 0.2);
-  color: #ff5050;
-  border-color: #ff5050;
+  background: var(--danger-hover-bg);
+  color: var(--text-primary);
+  border-color: var(--danger-border);
 }
 
 .modal-title {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.6em;
   font-weight: 900;
-  color: var(--neon-amber, #ffbf00);
+  color: var(--neon-amber);
   margin: 0.5rem 0 0;
   padding: 0 1.5rem 1.25rem;
   text-transform: uppercase;
   letter-spacing: 4px;
-  text-shadow: 0 0 20px rgba(255, 191, 0, 0.3);
-  border-bottom: 1px solid rgba(74, 93, 35, 0.3);
+  text-shadow: 0 0 20px var(--glow-accent);
+  border-bottom: 1px solid var(--border-military);
 }
 
 /* ===== BODY ===== */
@@ -115,16 +112,16 @@
   font-family: 'Courier New', monospace;
   font-size: 0.7em;
   letter-spacing: 2px;
-  color: rgba(197, 160, 89, 0.7);
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
 .field-input {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(74, 93, 35, 0.4);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 2px;
   padding: 12px 16px;
-  color: #e8e8e8;
+  color: var(--text-primary);
   font-family: 'Courier New', monospace;
   font-size: 0.95em;
   transition: border-color 0.25s, box-shadow 0.25s;
@@ -134,12 +131,13 @@
 }
 
 .field-input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-muted);
+  opacity: 0.3;
 }
 
 .field-input:focus {
-  border-color: var(--neon-amber, #ffbf00);
-  box-shadow: 0 0 0 2px rgba(255, 191, 0, 0.1);
+  border-color: var(--input-focus);
+  box-shadow: 0 0 10px var(--glow-primary);
 }
 
 /* ===== TIPO ROW ===== */
@@ -155,10 +153,10 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(74, 93, 35, 0.3);
+  background: var(--panel-bg);
+  border: 1px solid var(--border-military);
   border-radius: 2px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   font-family: 'Orbitron', sans-serif;
   font-size: 0.75em;
   font-weight: 700;
@@ -168,15 +166,15 @@
 }
 
 .tipo-btn:hover {
-  border-color: rgba(197, 160, 89, 0.5);
-  color: rgba(197, 160, 89, 0.8);
+  border-color: var(--military-gold);
+  color: var(--military-gold);
 }
 
 .tipo-btn.active {
   background: rgba(255, 191, 0, 0.1);
-  border-color: var(--neon-amber, #ffbf00);
-  color: var(--neon-amber, #ffbf00);
-  box-shadow: 0 0 12px rgba(255, 191, 0, 0.15);
+  border-color: var(--neon-amber);
+  color: var(--neon-amber);
+  box-shadow: 0 0 12px var(--glow-accent);
 }
 
 .tipo-icon {
@@ -200,11 +198,11 @@
 
 /* ===== ERROR ===== */
 .modal-error {
-  background: rgba(180, 40, 40, 0.15);
-  border: 1px solid rgba(220, 60, 60, 0.4);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
   border-radius: 2px;
   padding: 10px 14px;
-  color: #e07070;
+  color: var(--danger-border);
   font-family: 'Courier New', monospace;
   font-size: 0.85em;
   display: flex;
@@ -214,7 +212,7 @@
 
 .error-icon {
   font-size: 1em;
-  color: #ff5050;
+  color: var(--danger-border);
 }
 
 /* ===== FOOTER ===== */
@@ -222,7 +220,7 @@
   display: flex;
   gap: 0.75rem;
   padding: 1.25rem 1.5rem;
-  border-top: 1px solid rgba(74, 93, 35, 0.3);
+  border-top: 1px solid var(--border-military);
   background: rgba(0, 0, 0, 0.2);
 }
 
@@ -230,8 +228,8 @@
   flex: 0 0 auto;
   padding: 12px 20px;
   background: transparent;
-  border: 1px solid rgba(120, 120, 120, 0.3);
-  color: rgba(200, 200, 200, 0.5);
+  border: 1px solid var(--border-military);
+  color: var(--text-muted);
   font-family: 'Orbitron', sans-serif;
   font-size: 0.75em;
   font-weight: 600;
@@ -242,16 +240,17 @@
 }
 
 .modal-cancel-btn:hover {
-  border-color: rgba(200, 200, 200, 0.5);
-  color: rgba(200, 200, 200, 0.8);
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+    color: var(--text-primary);
 }
 
 .modal-action-btn {
   flex: 1;
   padding: 12px 24px;
-  background: var(--neon-amber, #ffbf00);
-  border: none;
-  color: #0d0d0d;
+  background: var(--btn-bg);
+  border: 1px solid var(--military-gold);
+  color: var(--text-primary);
   font-family: 'Orbitron', sans-serif;
   font-size: 0.85em;
   font-weight: 900;
@@ -263,8 +262,9 @@
 }
 
 .modal-action-btn:hover:not(:disabled) {
-  background: #ffd040;
-  box-shadow: 0 0 20px rgba(255, 191, 0, 0.4);
+  background: var(--btn-hover-bg);
+  color: var(--btn-hover-text);
+  box-shadow: 0 0 20px var(--glow-primary);
   transform: translateY(-1px);
 }
 

@@ -1,0 +1,58 @@
+<div class="editor-container" (mouseup)="onMouseUp()" (mouseleave)="onMouseUp()">
+    <header class="editor-header">
+        <div class="header-info">
+            <h1>MAP STRATEGIST</h1>
+            <p>DESIGNING SECTOR 7-G</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-retro" (click)="initGrid()">LIMPIAR</button>
+            <button class="btn-retro primary" (click)="saveMap()">GUARDAR EN BD</button>
+        </div>
+    </header>
+
+    <div class="editor-layout">
+        <aside class="palette">
+            <h3>HERRAMIENTAS</h3>
+            <div class="brush-selector">
+                <div class="brush-item" [class.active]="selectedBrush === 'G'" (click)="selectBrush('G')">
+                    <div class="brush-preview tile-G"></div>
+                    <span>HIERBA</span>
+                </div>
+                <div class="brush-item" [class.active]="selectedBrush === 'W'" (click)="selectBrush('W')">
+                    <div class="brush-preview tile-W"></div>
+                    <span>AGUA</span>
+                </div>
+                <div class="brush-item" [class.active]="selectedBrush === 'M'" (click)="selectBrush('M')">
+                    <div class="brush-preview tile-M"></div>
+                    <span>MONTAÑA</span>
+                </div>
+                <div class="brush-item" [class.active]="selectedBrush === 'B'" (click)="selectBrush('B')">
+                    <div class="brush-preview tile-B"></div>
+                    <span>PUENTE</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="grid-viewport">
+            <div class="grid-container">
+                <!-- Column Labels -->
+                <div class="labels-row">
+                    <div class="label-corner"></div>
+                    <div *ngFor="let label of colLabels" class="label-col">{{label}}</div>
+                </div>
+
+                <!-- Grid Rows -->
+                <div *ngFor="let row of grid; let y = index" class="grid-row">
+                    <div class="label-row">{{rowLabels[y]}}</div>
+                    <div *ngFor="let tile of row; let x = index" 
+                         class="tile"
+                         [ngClass]="'tile-' + grid[y][x]"
+                         [ngStyle]="getTileStyle(x, y)"
+                         (mousedown)="onMouseDown(x, y)"
+                         (mouseenter)="onMouseEnter(x, y)">
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>

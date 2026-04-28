@@ -1,0 +1,51 @@
+<!-- Componente para crear items de la tienda -->
+<div class="crear-tienda-container">
+    <div class="crear-tienda rugged-panel">
+        <h2 class="form-title">REGISTRO DE SUMINISTROS</h2>
+
+        <form class="military-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="nombre">IDENTIFICADOR DE OBJETO</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Nombre del item..."
+                        class="military-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="precio">VALOR DE MERCADO (CR)</label>
+                    <input type="number" id="precio" name="precio" placeholder="0000" min="0" class="military-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">CLASIFICACIÓN</label>
+                    <select id="categoria" name="categoria" class="military-input">
+                        <option value="tanque">TANQUE</option>
+                        <option value="personalizacion">PERSONALIZACIÓN</option>
+                        <option value="perfil">PERIL</option>
+                        <option value="especial">ESPECIAL</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="imagen">VISUALIZACIÓN (PNG)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="imagen" name="imagen" class="military-file-input">
+                        <span class="file-custom-btn">CARGAR ARCHIVO</span>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="descripcion">INFORME DE CAPACIDADES</label>
+                    <textarea id="descripcion" name="descripcion" placeholder="Descripción técnica del suministro..."
+                        class="military-input military-textarea"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-poly btn-submit">
+                    <i class="fa fa-plus"></i> DESPLEGAR SUMINISTRO
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

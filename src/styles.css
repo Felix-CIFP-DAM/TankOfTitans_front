@@ -1,30 +1,235 @@
 /* You can add global styles to this file, and also import other style files */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
 
+/* ============================================================
+   TEMA: NORMAL (Camuflaje Verde Militar)
+   ============================================================ */
 :root {
-  /* Camouflage Palette */
-  --camo-black: #0F1108;
+  /* Base Colors */
+  --camo-black:      #0F1108;
   --camo-dark-green: #2F3519;
-  --camo-olive: #4B5320;
-  --camo-brown: #5C4B37;
-  --camo-tan: #8B7E66;
-  
-  /* Military Accents */
-  --military-gold: #C5A059;
-  --hazard-orange: #FF8C00;
-  --neon-amber: #FFBF00;
-  --text-primary: #E0E5D5;
-  --text-muted: #A0A0A0;
+  --camo-olive:      #4B5320;
+  --camo-brown:      #5C4B37;
+  --camo-tan:        #8B7E66;
+
+  /* Accent Colors */
+  --military-gold:   #C5A059;
+  --hazard-orange:   #FF8C00;
+  --neon-amber:      #FFBF00;
+
+  /* Text */
+  --text-primary:    #E0E5D5;
+  --text-muted:      #A0A0A0;
+  --text-heading:    #C5A059;
+
+  /* UI */
   --border-military: #5D634F;
-  --panel-bg: rgba(20, 22, 15, 0.85);
+  --panel-bg:        rgba(20, 22, 15, 0.85);
+  --input-bg:        rgba(15, 17, 8, 0.9);
+
+  /* Background Gradients */
+  --bg-gradient:     linear-gradient(160deg, #0d0d0d 0%, #0F1108 40%, #1a1c10 100%);
+  --bg-particle:     rgba(74, 93, 35, 0.15);
+  --bg-radial-1:     rgba(75, 83, 32, 0.2);
+  --bg-radial-2:     rgba(197, 160, 89, 0.15);
+
+  /* Glow Effects */
+  --glow-primary:    rgba(197, 160, 89, 0.4);
+  --glow-accent:     rgba(255, 191, 0, 0.3);
+  --glow-border:     rgba(74, 93, 35, 0.3);
+
+  /* Button States */
+  --btn-bg:          #2F3519;
+  --btn-hover-bg:    #C5A059;
+  --btn-hover-text:  #000000;
+  --btn-active-bar:  #4B5320;
+
+  /* Danger/Exit */
+  --danger-bg:       rgba(180, 60, 60, 0.3);
+  --danger-bar:      #8B3A3A;
+  --danger-hover-bg: #882222;
+  --danger-border:   #ff0000;
+  --danger-glow:     rgba(255, 0, 0, 0.4);
+
+  /* Scrollbar */
+  --scrollbar-thumb: #5D634F;
+  --scrollbar-track: #0F1108;
+
+  /* Form */
+  --input-border:    #5D634F;
+  --input-focus:     #C5A059;
+  --label-color:     #FFBF00;
+
+  /* Status Indicator */
+  --status-online:   #27F59C;
 }
 
-html, body { 
-  height: 100%; 
-  margin: 0; 
-  background-color: var(--camo-black); 
+/* ============================================================
+   TEMA: NEVADO (Snow Camouflage)
+   ============================================================ */
+[data-theme='CamNev'] {
+  --camo-black:      #10141A;
+  --camo-dark-green: #1E2A3A;
+  --camo-olive:      #3A4F6B;
+  --camo-brown:      #6B8AAD;
+  --camo-tan:        #B8D4E8;
+
+  --military-gold:   #82C5E8;
+  --hazard-orange:   #E06B6B;
+  --neon-amber:      #A8D8EA;
+
+  --text-primary:    #EDF2F7;
+  --text-muted:      #90A0B7;
+  --text-heading:    #82C5E8;
+
+  --border-military: #3A5068;
+  --panel-bg:        rgba(16, 20, 26, 0.88);
+  --input-bg:        rgba(20, 26, 36, 0.95);
+
+  --bg-gradient:     linear-gradient(160deg, #080C12 0%, #10141A 40%, #1A2232 100%);
+  --bg-particle:     rgba(100, 150, 200, 0.12);
+  --bg-radial-1:     rgba(60, 80, 120, 0.2);
+  --bg-radial-2:     rgba(130, 197, 232, 0.1);
+
+  --glow-primary:    rgba(130, 197, 232, 0.4);
+  --glow-accent:     rgba(168, 216, 234, 0.3);
+  --glow-border:     rgba(58, 79, 107, 0.4);
+
+  --btn-bg:          #1E2A3A;
+  --btn-hover-bg:    #82C5E8;
+  --btn-hover-text:  #000000;
+  --btn-active-bar:  #3A4F6B;
+
+  --danger-bg:       rgba(180, 60, 60, 0.25);
+  --danger-bar:      #7A3A3A;
+  --danger-hover-bg: #6B2020;
+  --danger-border:   #E06B6B;
+  --danger-glow:     rgba(224, 107, 107, 0.4);
+
+  --scrollbar-thumb: #3A5068;
+  --scrollbar-track: #10141A;
+
+  --input-border:    #3A5068;
+  --input-focus:     #82C5E8;
+  --label-color:     #A8D8EA;
+
+  --status-online:   #68D9B0;
+}
+
+/* ============================================================
+   TEMA: DESÉRTICO (Desert Camouflage)
+   ============================================================ */
+[data-theme='CamDes'] {
+  --camo-black:      #1A120B;
+  --camo-dark-green: #2E1F12;
+  --camo-olive:      #5E4620;
+  --camo-brown:      #8B6A3E;
+  --camo-tan:        #C9A96E;
+
+  --military-gold:   #D4A843;
+  --hazard-orange:   #C47C1A;
+  --neon-amber:      #F5CC6A;
+
+  --text-primary:    #F5EDD8;
+  --text-muted:      #B59A72;
+  --text-heading:    #D4A843;
+
+  --border-military: #7A5E38;
+  --panel-bg:        rgba(26, 18, 11, 0.88);
+  --input-bg:        rgba(30, 20, 10, 0.95);
+
+  --bg-gradient:     linear-gradient(160deg, #120D06 0%, #1A120B 40%, #231808 100%);
+  --bg-particle:     rgba(180, 140, 70, 0.12);
+  --bg-radial-1:     rgba(140, 100, 40, 0.2);
+  --bg-radial-2:     rgba(212, 168, 67, 0.12);
+
+  --glow-primary:    rgba(212, 168, 67, 0.4);
+  --glow-accent:     rgba(245, 204, 106, 0.3);
+  --glow-border:     rgba(122, 94, 56, 0.4);
+
+  --btn-bg:          #2E1F12;
+  --btn-hover-bg:    #D4A843;
+  --btn-hover-text:  #000000;
+  --btn-active-bar:  #5E4620;
+
+  --danger-bg:       rgba(160, 60, 30, 0.3);
+  --danger-bar:      #8B3A1A;
+  --danger-hover-bg: #7A2810;
+  --danger-border:   #C84A20;
+  --danger-glow:     rgba(200, 74, 32, 0.4);
+
+  --scrollbar-thumb: #7A5E38;
+  --scrollbar-track: #1A120B;
+
+  --input-border:    #7A5E38;
+  --input-focus:     #D4A843;
+  --label-color:     #F5CC6A;
+
+  --status-online:   #A8D870;
+}
+
+/* ============================================================
+   TEMA: OCEÁNICO (Ocean Camouflage)
+   ============================================================ */
+[data-theme='CamOce'] {
+  --camo-black:      #020B18;
+  --camo-dark-green: #0A1A2E;
+  --camo-olive:      #0D3B6E;
+  --camo-brown:      #1565A8;
+  --camo-tan:        #2196D4;
+
+  --military-gold:   #00CFFF;
+  --hazard-orange:   #FF4B8A;
+  --neon-amber:      #00E5FF;
+
+  --text-primary:    #C0ECF8;
+  --text-muted:      #6BAEC8;
+  --text-heading:    #00CFFF;
+
+  --border-military: #0D5080;
+  --panel-bg:        rgba(2, 11, 24, 0.90);
+  --input-bg:        rgba(5, 15, 32, 0.95);
+
+  --bg-gradient:     linear-gradient(160deg, #010810 0%, #020B18 40%, #041424 100%);
+  --bg-particle:     rgba(0, 150, 220, 0.12);
+  --bg-radial-1:     rgba(13, 60, 110, 0.25);
+  --bg-radial-2:     rgba(0, 207, 255, 0.12);
+
+  --glow-primary:    rgba(0, 207, 255, 0.45);
+  --glow-accent:     rgba(0, 229, 255, 0.3);
+  --glow-border:     rgba(13, 80, 128, 0.5);
+
+  --btn-bg:          #0A1A2E;
+  --btn-hover-bg:    #00CFFF;
+  --btn-hover-text:  #000000;
+  --btn-active-bar:  #0D3B6E;
+
+  --danger-bg:       rgba(255, 75, 138, 0.2);
+  --danger-bar:      #802060;
+  --danger-hover-bg: #601840;
+  --danger-border:   #FF4B8A;
+  --danger-glow:     rgba(255, 75, 138, 0.45);
+
+  --scrollbar-thumb: #0D5080;
+  --scrollbar-track: #020B18;
+
+  --input-border:    #0D5080;
+  --input-focus:     #00CFFF;
+  --label-color:     #00E5FF;
+
+  --status-online:   #00FFC8;
+}
+
+/* ============================================================
+   GLOBAL BASE STYLES
+   ============================================================ */
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg-gradient);
   color: var(--text-primary);
   font-family: 'Inter', "Helvetica Neue", sans-serif;
+  transition: background 0.5s ease, color 0.5s ease;
 }
 
 /* CRT SCANLINE EFFECT */
@@ -50,29 +255,65 @@ body::after {
   z-index: 9998;
 }
 
-/* UTILITIES */
+/* ============================================================
+   GLOBAL SCROLLBAR (themed)
+   ============================================================ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--military-gold); }
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
 .font-mono { font-family: 'Courier New', Courier, monospace !important; }
+
 .rugged-panel {
   background: var(--panel-bg);
   border: 1px solid var(--border-military);
   border-radius: 2px;
   backdrop-filter: blur(8px);
-}
-.btn-poly {
-  clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
-  transition: all 0.3s ease;
-}
-.btn-poly:hover {
-  background-color: var(--military-gold) !important;
-  color: black !important;
-  box-shadow: 0 0 15px var(--military-gold);
+  transition: background 0.5s ease, border-color 0.5s ease;
 }
 
-/* SNACKBAR STYLES */
+/* ============================================================
+   BTN-POLY — universal themed button
+   ============================================================ */
+.btn-poly {
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-poly:hover {
+  background-color: var(--btn-hover-bg) !important;
+  color: var(--btn-hover-text) !important;
+  box-shadow: 0 0 15px var(--glow-primary);
+}
+
+.btn-poly::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: 0.5s;
+}
+
+.btn-poly:hover::after {
+  left: 100%;
+}
+
+/* ============================================================
+   SNACKBAR STYLES
+   ============================================================ */
 .snack-bar-exito {
-  --mdc-snackbar-container-color: #2F3519 !important;
-  --mdc-snackbar-supporting-text-color: #27F59C !important;
-  border: 1px solid #27F59C;
+  --mdc-snackbar-container-color: var(--camo-dark-green) !important;
+  --mdc-snackbar-supporting-text-color: var(--status-online) !important;
+  border: 1px solid var(--status-online);
   font-family: 'Orbitron', sans-serif;
 }
 
@@ -84,20 +325,22 @@ body::after {
 }
 
 .snack-bar-advertencia {
-  --mdc-snackbar-container-color: #352D19 !important;
-  --mdc-snackbar-supporting-text-color: #F5C127 !important;
-  border: 1px solid #F5C127;
+  --mdc-snackbar-container-color: var(--camo-dark-green) !important;
+  --mdc-snackbar-supporting-text-color: var(--neon-amber) !important;
+  border: 1px solid var(--neon-amber);
   font-family: 'Orbitron', sans-serif;
 }
 
 .snack-bar-info {
-  --mdc-snackbar-container-color: #192D35 !important;
-  --mdc-snackbar-supporting-text-color: #27F5F5 !important;
-  border: 1px solid #27F5F5;
+  --mdc-snackbar-container-color: var(--camo-dark-green) !important;
+  --mdc-snackbar-supporting-text-color: var(--military-gold) !important;
+  border: 1px solid var(--military-gold);
   font-family: 'Orbitron', sans-serif;
 }
 
-/* VALIDATION ERROR MESSAGES */
+/* ============================================================
+   VALIDATION ERROR MESSAGES
+   ============================================================ */
 .error-message {
   color: #F53838;
   font-size: 0.75rem;
@@ -109,6 +352,15 @@ body::after {
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ============================================================
+   RESPONSIVE — LANDSCAPE MOBILE
+   ============================================================ */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  html { font-size: 14px; }
+  body { overflow-x: hidden; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+}
