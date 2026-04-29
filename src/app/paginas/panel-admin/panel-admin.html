@@ -1,31 +1,42 @@
 <!-- Panel de administracion de la pagina web -->
 <div class="panel-admin">
-    <div class="menu-lateral">
-        <div class="logo">
-            <img src="logo_oficial.png" alt="Logo">
+    <aside class="menu-lateral">
+        <div class="logo-container">
+            <img src="logo_oficial.png" alt="Logo" class="admin-logo">
+            <h2 class="admin-title">ADMIN CONTROL</h2>
         </div>
-        <div class="menu">
-            <div class="menu-item" routerLink="../menu">
+
+        <nav class="admin-nav">
+            <div class="nav-item btn-poly" routerLink="../menu" routerLinkActive="active">
                 <i class="fa fa-home"></i>
-                <span>Inicio</span>
+                <span>ESTACIÓN BASE</span>
             </div>
-            <div class="menu-item">
+            <div class="nav-item btn-poly" routerLink="usuarios" routerLinkActive="active">
                 <i class="fa fa-users"></i>
-                <span>Usuarios</span>
+                <span>OPERATIVOS</span>
             </div>
-            <div class="menu-item" routerLink="crearTienda">
+            <div class="nav-item btn-poly" routerLink="crearTienda" routerLinkActive="active">
                 <i class="fa fa-box"></i>
-                <span>Productos</span>
+                <span>ARMERÍA</span>
             </div>
-            <div class="menu-item">
+            <div class="nav-item btn-poly" routerLink="crearMapas" routerLinkActive="active">
+                <i class="fa fa-maps"></i>
+                <span>MAPAS</span>
+            </div>
+            <div class="nav-item btn-poly" routerLink="config" routerLinkActive="active">
                 <i class="fa fa-cogs"></i>
-                <span>Configuración</span>
+                <span>PROTOCOLO</span>
             </div>
+        </nav>
+
+        <div class="admin-footer">
+            <span class="status-indicator"></span> SISTEMA ONLINE
         </div>
-    </div>
-    <div class="content-panel">
-        <div class="content">
+    </aside>
+
+    <main class="content-panel">
+        <div class="content-viewport">
             <router-outlet></router-outlet>
         </div>
-    </div>
+    </main>
 </div>

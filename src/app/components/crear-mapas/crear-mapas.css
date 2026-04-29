@@ -1,0 +1,204 @@
+.editor-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    font-family: 'Courier New', Courier, monospace;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.header-info h1 {
+    margin: 0;
+    color: #ffd700;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.header-info p {
+    margin: 5px 0 0;
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-retro {
+    background: #333;
+    border: 2px solid #555;
+    color: #fff;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+.btn-retro:hover {
+    background: #444;
+    border-color: #777;
+}
+
+.btn-retro.primary {
+    background: #006400;
+    border-color: #008000;
+    color: #fff;
+}
+
+.btn-retro.primary:hover {
+    background: #008000;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.editor-layout {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.palette {
+    width: 200px;
+    background: #252525;
+    border: 1px solid #333;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.palette h3 {
+    margin-top: 0;
+    font-size: 0.9rem;
+    color: #888;
+    text-align: center;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+}
+
+.brush-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.brush-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.brush-item:hover {
+    background: #333;
+}
+
+.brush-item.active {
+    border-color: #ffd700;
+    background: #333;
+}
+
+.brush-preview {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #444;
+    image-rendering: pixelated;
+}
+
+.brush-item span {
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.grid-viewport {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: #0a0a0a;
+    padding: 20px;
+    border: 1px solid #333;
+    overflow: auto;
+    position: relative;
+}
+
+.grid-container {
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+}
+
+.labels-row {
+    display: grid;
+    grid-template-columns: 32px repeat(15, 32px); /* Label corner + 15 cols */
+    gap: 4px;
+}
+
+.grid-row {
+    display: grid;
+    grid-template-columns: 32px repeat(15, 32px);
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.label-col {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #666;
+    line-height: 20px;
+}
+
+.label-row {
+    text-align: right;
+    padding-right: 8px;
+    font-size: 0.7rem;
+    color: #666;
+    line-height: 32px;
+}
+
+.tile {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: crosshair;
+    image-rendering: pixelated;
+    background-size: auto 32px; /* 47 tiles horizontal */
+}
+
+.tile:hover {
+    outline: 1px solid #ffd700;
+    z-index: 10;
+}
+
+/* Tile Types Backgrounds */
+/* Assuming a tileset image will be provided for each type */
+.tile-G { background-color: #2e7d32; } /* Grass Fallback */
+.tile-W { background-color: #1565c0; } /* Water Fallback */
+.tile-M { background-color: #4e342e; } /* Mountain Fallback */
+.tile-B { background-color: #795548; } /* Bridge Fallback */
+
+.brush-preview.tile-G { background-color: #2e7d32; }
+.brush-preview.tile-W { background-color: #1565c0; }
+.brush-preview.tile-M { background-color: #4e342e; }
+.brush-preview.tile-B { background-color: #795548; }
+
+/* Real Sprites would be linked here:
+.tile-G { background-image: url('/assets/tilesets/grass_autotile.png'); }
+.tile-W { background-image: url('/assets/tilesets/water_autotile.png'); }
+...
+*/

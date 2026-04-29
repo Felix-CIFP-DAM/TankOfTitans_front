@@ -1,0 +1,46 @@
+<div class="settings-container">
+    <div class="settings-menu rugged-panel">
+        <h2 class="settings-title">SISTEMA DE CONFIGURACIÓN</h2>
+        
+        <div class="settings-grid">
+            <div class="settings-section">
+                <h3 class="section-title"><i class="fa fa-paint-brush"></i> CAMUFLAJE</h3>
+                <div class="input-group">
+                    <select [(ngModel)]="estilo" class="military-select">
+                        <option value="CamNor">Camuflaje Normal</option>
+                        <option value="CamNev">Camuflaje Nevado</option>
+                        <option value="CamDes">Camuflaje Desertico</option>
+                        <option value="CamOce">Camuflaje Oceanico</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3 class="section-title"><i class="fa fa-volume-up"></i> AUDIO</h3>
+                
+                <div class="control-group">
+                    <label>Música (BGM)</label>
+                    <div class="range-container">
+                        <input type="range" min="0" max="1" step="0.1" [ngModel]="volumenes.bgm"
+                            (ngModelChange)="audioService.setBGMVolume($event)" class="military-range">
+                        <span class="range-value">{{(volumenes.bgm * 100).toFixed(0)}}%</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Efectos (SFX)</label>
+                    <div class="range-container">
+                        <input type="range" min="0" max="1" step="0.1" [ngModel]="volumenes.sfx"
+                            (ngModelChange)="audioService.setSFXVolume($event)" class="military-range">
+                        <span class="range-value">{{(volumenes.sfx * 100).toFixed(0)}}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-actions">
+            <button (click)="guardarConfiguracion()" class="btn btn-poly btn-save">CONFIRMAR</button>
+            <button (click)="cancelarConfiguracion()" class="btn btn-poly btn-cancel">ABORTAR</button>
+        </div>
+    </div>
+</div>

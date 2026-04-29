@@ -1,0 +1,119 @@
+<div class="preparacion-container">
+    <!-- Header -->
+    <header class="prep-header">
+        <button class="back-btn" (click)="volverAlMenu()">
+            <i class="fas fa-arrow-left"></i> VOLVER AL CUARTEL
+        </button>
+        <div class="room-info">
+            <span class="room-tag">OPERACIÓN: SEXTOR-9</span>
+            <span class="room-id">SALA #{{id_sala}}</span>
+        </div>
+        <div class="settings-btn">
+            <i class="fas fa-cog"></i>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <!-- Center/Left Content: Roster + Podium -->
+        <div class="combat-selection">
+
+            <!-- Grouped Roster -->
+            <div class="roster-scroll-area">
+                <!-- LIGEROS -->
+                <div class="roster-category">
+                    <h4 class="category-title">UNIDADES LIGERAS</h4>
+                    <div class="roster-grid">
+                        <div *ngFor="let tanque of ligeros" class="tank-card"
+                            [class.selected]="peloton().includes(tanque)" (click)="seleccionarTanque(tanque)">
+                            <div class="tank-thumb"><img [src]="tanque.imagen_icono" alt="tank"></div>
+                            <span class="tank-name">{{tanque.nombre}}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MEDIANOS -->
+                <div class="roster-category">
+                    <h4 class="category-title">UNIDADES MEDIANAS</h4>
+                    <div class="roster-grid">
+                        <div *ngFor="let tanque of medianos" class="tank-card"
+                            [class.selected]="peloton().includes(tanque)" (click)="seleccionarTanque(tanque)">
+                            <div class="tank-thumb"><img [src]="tanque.imagen_icono" alt="tank"></div>
+                            <span class="tank-name">{{tanque.nombre}}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PESADOS -->
+                <div class="roster-category">
+                    <h4 class="category-title">UNIDADES PESADAS</h4>
+                    <div class="roster-grid">
+                        <div *ngFor="let tanque of pesados" class="tank-card"
+                            [class.selected]="peloton().includes(tanque)" (click)="seleccionarTanque(tanque)">
+                            <div class="tank-thumb"><img [src]="tanque.imagen_icono" alt="tank"></div>
+                            <span class="tank-name">{{tanque.nombre}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Message -->
+            <div class="selection-status">
+                <p *ngIf="peloton().length < 5">SELECCIONA TU ESCUADRÓN ({{peloton().length}}/5)</p>
+                <p *ngIf="peloton().length === 5" class="ready-msg">¡ESCUADRÓN COMPLETO!</p>
+            </div>
+
+            <!-- Podium Area -->
+            <div class="podium-area">
+                <div *ngFor="let slot of [0,1,2,3,4]" class="podium-slot">
+                    <div *ngIf="peloton()[slot] as t" class="selected-tank-display animate-in">
+                        <div class="tank-model">
+                            <img [src]="t.imagen_icono" alt="tank">
+                            <div class="platform-glow"></div>
+                        </div>
+                        <div class="tank-specs">
+                            <span class="t-name">{{t.nombre}}</span>
+                            <div class="stat-bars">
+                                <div class="stat">
+                                    <div class="fill atk" [style.width.%]="t.stats.ataque"></div>
+                                </div>
+                                <div class="stat">
+                                    <div class="fill def" [style.width.%]="t.stats.defensa"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="remove-btn" (click)="quitarTanque(t.id)">×</button>
+                    </div>
+                    <div *ngIf="!peloton()[slot]" class="empty-slot">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="podium-base"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Players Status -->
+        <aside class="players-sidebar rugged-panel">
+            <h3 class="sidebar-title">LISTA DE DESPLIEGUE</h3>
+            <div class="players-list">
+                <div *ngFor="let j of jugadores" class="player-card" [class.ready]="j.listo">
+                    <div class="player-avatar">
+                        <img [src]="j.avatar" alt="avatar">
+                        <div class="ready-indicator"></div>
+                    </div>
+                    <div class="player-info">
+                        <span class="player-name">{{j.nickname}}</span>
+                        <span class="player-status">{{j.listo ? 'PREPARADO' : 'EN GARAJE...'}}</span>
+                    </div>
+                    <div *ngIf="j.esHost" class="host-tag">HOST</div>
+                </div>
+            </div>
+
+            <div class="actions-area">
+                <button class="ready-toggle btn-poly" [disabled]="peloton().length !== 5"
+                    [class.btn-locked]="peloton().length !== 5" (click)="toggleListo()">
+                    {{ jugadores[0].listo ? 'DESACTIVAR' : 'DESPLEGAR' }}
+                </button>
+            </div>
+        </aside>
+    </div>
+</div>

@@ -27,6 +27,7 @@
     border: 1px solid var(--border-military);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     position: relative;
+    transition: background 0.5s ease, border-color 0.5s ease;
 }
 
 .cuadro::before {
@@ -62,7 +63,7 @@
     display: block;
     margin-bottom: 6px;
     font-size: 0.85em;
-    color: var(--camo-tan);
+    color: var(--label-color);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -71,9 +72,9 @@
 .input-group input {
     width: 100%;
     padding: 12px 16px;
-    background: rgba(26, 26, 26, 0.6);
-    border: 1px solid rgba(139, 126, 102, 0.3);
-    border-radius: 8px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 2px;
     font-size: 1em;
     color: var(--text-primary);
     box-sizing: border-box;
@@ -87,10 +88,10 @@
 }
 
 .input-group input:focus {
-    border-color: var(--camo-olive);
-    box-shadow: 0 0 0 3px rgba(74, 93, 35, 0.3), 0 0 12px rgba(74, 93, 35, 0.15);
+    border-color: var(--input-focus);
+    box-shadow: 0 0 10px var(--glow-primary);
     outline: none;
-    background: rgba(26, 26, 26, 0.8);
+    background: var(--input-bg);
 }
 
 /* ===== LINKS ===== */
@@ -116,8 +117,8 @@
 }
 
 .enlaces a:hover {
-    color: #ffd24d;
-    text-shadow: 0 0 8px rgba(255, 191, 0, 0.3);
+    color: var(--military-gold);
+    text-shadow: 0 0 8px var(--glow-accent);
 }
 
 .enlaces a:hover::after {
@@ -132,8 +133,8 @@
 .recuperar-button {
     width: 100%;
     padding: 14px;
-    background: var(--camo-olive);
-    color: #fff;
+    background: var(--btn-bg);
+    color: var(--text-primary);
     border: 1px solid var(--military-gold);
     clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
     font-size: 1.05em;
@@ -147,10 +148,10 @@
 }
 
 .recuperar-button:hover {
-    background: var(--military-gold);
-    color: black;
+    background: var(--btn-hover-bg);
+    color: var(--btn-hover-text);
     transform: translateY(-2px);
-    box-shadow: 0 0 15px var(--military-gold);
+    box-shadow: 0 0 15px var(--glow-primary);
 }
 
 .recuperar-button:active {

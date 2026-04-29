@@ -76,8 +76,32 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('./components/crear-tienda/crear-tienda')
                         .then(m => m.CrearTienda)
+            },
+            {
+                path: 'crearMapas',
+                loadComponent: () =>
+                    import('./components/crear-mapas/crear-mapas')
+                        .then(m => m.CrearMapas)
+            },
+            {
+                path: 'usuarios',
+                loadComponent: () =>
+                    import('./components/crear-usuario/crear-usuario')
+                        .then(m => m.CrearUsuario)
             }
         ]
+    },
+    {
+        path: 'configuracion',
+        loadComponent: () =>
+            import('./paginas/configuracion/configuracion')
+                .then(m => m.Configuracion)
+    },
+    {
+        path: 'preparacion',
+        loadComponent: () =>
+            import('./paginas/preparacion/preparacion')
+                .then(m => m.Preparacion)
     }
 
 

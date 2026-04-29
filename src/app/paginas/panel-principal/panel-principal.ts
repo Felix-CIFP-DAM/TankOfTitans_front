@@ -7,6 +7,7 @@ import { SalaUnirse } from '../sala-unirse/sala-unirse';
 import { PerfilUsuario } from '../perfil-usuario/perfil-usuario';
 import { DataService } from '../../services/data-service';
 import { Perfil } from '../../modelos/Perfil';
+import { AudioService } from '../../services/audio-service';
 
 @Component({
   selector: 'app-panel-principal',
@@ -19,18 +20,20 @@ export class PanelPrincipal implements OnInit {
   perfil_imagen: string = "perfil_icono.png";
   nickname: string = "OPERATOR";
 
-  // Modal visibility
+  // Modal visibilitys
   mostrarHostModal: boolean = false;
   mostrarUnirseModal: boolean = false;
   mostrarPerfilModal: boolean = false;
 
   constructor(
     private router: Router,
-    private dataService: DataService
+    private dataService: DataService,
+    private audioService: AudioService
   ) { }
 
   ngOnInit() {
     this.actualizarDatosLocales();
+    this.audioService.playMusic('audio/theme.mp3');
   }
 
   actualizarDatosLocales() {
@@ -111,6 +114,9 @@ export class PanelPrincipal implements OnInit {
   }
   irAdministracion() {
     this.router.navigate(['/panelAdmin']);
+  }
+  irConfiguracion() {
+    this.router.navigate(['/configuracion']);
   }
 
   salir() {
