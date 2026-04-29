@@ -82,6 +82,12 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('./components/crear-mapas/crear-mapas')
                         .then(m => m.CrearMapas)
+            },
+            {
+                path: 'usuarios',
+                loadComponent: () =>
+                    import('./components/crear-usuario/crear-usuario')
+                        .then(m => m.CrearUsuario)
             }
         ]
     },
