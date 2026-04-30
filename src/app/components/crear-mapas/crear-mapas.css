@@ -70,59 +70,87 @@
     overflow: hidden;
 }
 
-.palette {
-    width: 200px;
+.palette-container {
+    width: 320px;
     background: #252525;
     border: 1px solid #333;
     padding: 15px;
     border-radius: 4px;
-}
-
-.palette h3 {
-    margin-top: 0;
-    font-size: 0.9rem;
-    color: #888;
-    text-align: center;
-    border-bottom: 1px solid #333;
-    padding-bottom: 10px;
-}
-
-.brush-selector {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
+    overflow-y: auto;
+    max-height: 80vh;
 }
 
-.brush-item {
+.palette-section h4 {
+    margin: 0 0 10px;
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.palette-grid {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    background: #1a1a1a;
-    border: 1px solid #333;
-    cursor: pointer;
-    transition: all 0.2s;
+    flex-direction: column;
+    gap: 1px;
+    background: #444;
+    border: 1px solid #444;
+    width: fit-content;
 }
 
-.brush-item:hover {
-    background: #333;
+.palette-row {
+    display: flex;
+    gap: 1px;
 }
 
-.brush-item.active {
-    border-color: #ffd700;
-    background: #333;
-}
-
-.brush-preview {
+.palette-tile {
     width: 32px;
     height: 32px;
-    border: 1px solid #444;
+    background-size: 256px auto;
+    /* 8 columns */
     image-rendering: pixelated;
+    cursor: pointer;
+    transition: transform 0.1s;
 }
 
-.brush-item span {
-    font-size: 0.8rem;
-    font-weight: bold;
+.palette-tile:hover {
+    transform: scale(1.1);
+    z-index: 5;
+    outline: 2px solid #ffd700;
+}
+
+.palette-tile.selected {
+    outline: 2px solid #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    z-index: 6;
+}
+
+.water-palette .palette-tile {
+    background-image: url('/assets/tilesets/water.jpg');
+}
+
+.grass-palette {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.grass-palette .palette-tile {
+    /*background-image: url('/assets/sprites/objetos.png');*/
+    background-image: url('/assets/tilesets/prueba.jpg');
+    background-size: 637px auto;
+}
+
+.grass-palette .palette-row {
+    width: fit-content;
+}
+
+.palette-info {
+    font-size: 0.65rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
 }
 
 .grid-viewport {
@@ -135,31 +163,40 @@
     border: 1px solid #333;
     overflow: auto;
     position: relative;
+    background-image:
+        linear-gradient(45deg, #111 25%, transparent 25%),
+        linear-gradient(-45deg, #111 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #111 75%),
+        linear-gradient(-45deg, transparent 75%, #111 75%);
+    background-size: 20px 20px;
 }
 
 .grid-container {
     display: flex;
     flex-direction: column;
     user-select: none;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border: 2px solid #333;
 }
 
 .labels-row {
     display: grid;
-    grid-template-columns: 32px repeat(15, 32px); /* Label corner + 15 cols */
-    gap: 4px;
+    grid-template-columns: 32px repeat(15, 32px);
+    gap: 2px;
 }
 
 .grid-row {
     display: grid;
     grid-template-columns: 32px repeat(15, 32px);
-    gap: 4px;
-    margin-bottom: 4px;
+    gap: 2px;
+    margin-bottom: 2px;
 }
 
 .label-col {
     text-align: center;
     font-size: 0.7rem;
-    color: #666;
+    color: #555;
     line-height: 20px;
 }
 
@@ -167,38 +204,83 @@
     text-align: right;
     padding-right: 8px;
     font-size: 0.7rem;
-    color: #666;
+    color: #555;
     line-height: 32px;
 }
 
-.tile {
+.tile-cell {
     width: 32px;
     height: 32px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
     cursor: crosshair;
-    image-rendering: pixelated;
-    background-size: auto 32px; /* 47 tiles horizontal */
 }
 
-.tile:hover {
+.base-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background-image: url('/assets/tilesets/grass.jpg');
+    background-size: 256px auto;
+    background-position: -192px -96px;
+    image-rendering: pixelated;
+}
+
+.tile {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    image-rendering: pixelated;
+    background-size: 256px auto;
+}
+
+.object-tile {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    image-rendering: pixelated;
+    background-size: 256px auto;
+    background-repeat: no-repeat;
+}
+
+.tipo-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.btn-tipo {
+    flex: 1;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    color: #888;
+    padding: 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+.btn-tipo:hover {
+    background: #333;
+}
+
+.btn-tipo.active {
+    border-color: #00ff00;
+    color: #fff;
+    background: #004d00;
+}
+
+.tile-cell:hover {
     outline: 1px solid #ffd700;
     z-index: 10;
 }
-
-/* Tile Types Backgrounds */
-/* Assuming a tileset image will be provided for each type */
-.tile-G { background-color: #2e7d32; } /* Grass Fallback */
-.tile-W { background-color: #1565c0; } /* Water Fallback */
-.tile-M { background-color: #4e342e; } /* Mountain Fallback */
-.tile-B { background-color: #795548; } /* Bridge Fallback */
-
-.brush-preview.tile-G { background-color: #2e7d32; }
-.brush-preview.tile-W { background-color: #1565c0; }
-.brush-preview.tile-M { background-color: #4e342e; }
-.brush-preview.tile-B { background-color: #795548; }
-
-/* Real Sprites would be linked here:
-.tile-G { background-image: url('/assets/tilesets/grass_autotile.png'); }
-.tile-W { background-image: url('/assets/tilesets/water_autotile.png'); }
-...
-*/

@@ -2,7 +2,7 @@
     <header class="editor-header">
         <div class="header-info">
             <h1>MAP STRATEGIST</h1>
-            <p>DESIGNING SECTOR 7-G</p>
+            <input type="text" [(ngModel)]="nombreMapa" class="map-name-input" placeholder="Nombre del Mapa">
         </div>
         <div class="header-actions">
             <button class="btn-retro" (click)="initGrid()">LIMPIAR</button>
@@ -11,27 +11,47 @@
     </header>
 
     <div class="editor-layout">
-        <aside class="palette">
-            <h3>HERRAMIENTAS</h3>
-            <div class="brush-selector">
-                <div class="brush-item" [class.active]="selectedBrush === 'G'" (click)="selectBrush('G')">
-                    <div class="brush-preview tile-G"></div>
-                    <span>HIERBA</span>
+        <aside class="palette-container">
+            <h3>PALETA DE SPRITES</h3>
+
+            <div class="palette-section">
+                <h4>PROPIEDAD DE COLISIÓN</h4>
+                <div class="tipo-selector">
+                    <button class="btn-tipo" [class.active]="selectedTipo === 'G'" (click)="selectedTipo = 'G'">HIERBA
+                        (Pasar)</button>
+                    <button class="btn-tipo" [class.active]="selectedTipo === 'W'" (click)="selectedTipo = 'W'">AGUA
+                        (Bloqueo)</button>
                 </div>
-                <div class="brush-item" [class.active]="selectedBrush === 'W'" (click)="selectBrush('W')">
-                    <div class="brush-preview tile-W"></div>
-                    <span>AGUA</span>
+                <p class="palette-info">Define si el sprite que elijas será transitable o no.</p>
+            </div>
+
+            <div class="palette-section">
+                <h4>SUELO (Imagen Water.jpg)</h4>
+                <div class="palette-grid water-palette">
+                    <div *ngFor="let y of getNumbers(waterSheet.rows)" class="palette-row">
+                        <div *ngFor="let x of getNumbers(waterSheet.cols)" class="palette-tile"
+                            [class.selected]="selectedSprite.x === x && selectedSprite.y === y && selectedSprite.sheet === 'water'"
+                            [style.background-position]="'-' + (x * 32) + 'px -' + (y * 32) + 'px'"
+                            (click)="selectFromPalette(x, y, 'water')">
+                        </div>
+                    </div>
                 </div>
-                <div class="brush-item" [class.active]="selectedBrush === 'M'" (click)="selectBrush('M')">
-                    <div class="brush-preview tile-M"></div>
-                    <span>MONTAÑA</span>
-                </div>
-                <div class="brush-item" [class.active]="selectedBrush === 'B'" (click)="selectBrush('B')">
-                    <div class="brush-preview tile-B"></div>
-                    <span>PUENTE</span>
+            </div>
+
+            <div class="palette-section">
+                <h4>OBJETOS (Imagen objetos.png)</h4>
+                <div class="palette-grid grass-palette">
+                    <div *ngFor="let y of getNumbers(grassSheet.rows)" class="palette-row">
+                        <div *ngFor="let x of getNumbers(grassSheet.cols)" class="palette-tile"
+                            [class.selected]="selectedSprite.x === x && selectedSprite.y === y && selectedSprite.sheet === 'world'"
+                            [style.background-position]="'-' + (x * 32) + 'px -' + (y * 32) + 'px'"
+                            (click)="selectFromPalette(x, y, 'world')">
+                        </div>
+                    </div>
                 </div>
             </div>
         </aside>
+
 
         <main class="grid-viewport">
             <div class="grid-container">
@@ -42,14 +62,20 @@
                 </div>
 
                 <!-- Grid Rows -->
-                <div *ngFor="let row of grid; let y = index" class="grid-row">
+                <div *ngFor="let row of capa_suelo; let y = index" class="grid-row">
                     <div class="label-row">{{rowLabels[y]}}</div>
-                    <div *ngFor="let tile of row; let x = index" 
-                         class="tile"
-                         [ngClass]="'tile-' + grid[y][x]"
-                         [ngStyle]="getTileStyle(x, y)"
-                         (mousedown)="onMouseDown(x, y)"
-                         (mouseenter)="onMouseEnter(x, y)">
+                    <div *ngFor="let tile of row; let x = index" class="tile-cell" (mousedown)="onMouseDown(x, y)"
+                        (mouseenter)="onMouseEnter(x, y)" (contextmenu)="$event.preventDefault(); clearObject(x, y)">
+
+                        <!-- Capa 0: Base Layer (Optional solid grass) -->
+                        <div class="base-layer"></div>
+
+                        <!-- Capa 1: Suelo (Manual Selection) -->
+                        <div class="tile" [ngStyle]="getTileStyle(capa_suelo[y][x])"></div>
+
+                        <!-- Capa 2: Objetos (Manual Selection) -->
+                        <div class="object-tile" *ngIf="capa_objetos[y][x]"
+                            [ngStyle]="getObjectStyle(capa_objetos[y][x])"></div>
                     </div>
                 </div>
             </div>
