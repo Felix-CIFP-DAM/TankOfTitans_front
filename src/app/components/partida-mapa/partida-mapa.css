@@ -1,0 +1,125 @@
+.mapa-viewport {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background-image:
+        linear-gradient(45deg, #111 25%, transparent 25%),
+        linear-gradient(-45deg, #111 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #111 75%),
+        linear-gradient(-45deg, transparent 75%, #111 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-color: #000;
+    cursor: grab;
+}
+
+.mapa-viewport:active {
+    cursor: grabbing;
+}
+
+.mapa-container {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    position: relative;
+    transform-origin: 0 0;
+    will-change: transform;
+}
+
+.mapa-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 6px solid var(--border-military, #4a5d23);
+    box-shadow: 0 0 15px rgba(0,0,0,0.8) inset, 0 0 15px rgba(0,0,0,0.8);
+    pointer-events: none;
+    z-index: 10;
+    box-sizing: border-box;
+}
+
+.mapa-row {
+    display: flex;
+}
+
+.tile-cell {
+    width: 48px;
+    height: 48px;
+    position: relative;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.base-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background-image: url('/assets/tilesets/suelos-1.png');
+    background-size: auto;
+    background-position: 0px 0px;
+    image-rendering: pixelated;
+}
+
+.tile {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    image-rendering: pixelated;
+    background-size: auto;
+}
+
+.object-tile {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    image-rendering: pixelated;
+    background-size: auto;
+    background-repeat: no-repeat;
+}
+
+.highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none; /* Let clicks pass through to tile-cell */
+}
+
+.overlay-move {
+    background-color: rgba(0, 150, 255, 0.4);
+    outline: 2px solid rgba(0, 150, 255, 0.8);
+    box-shadow: inset 0 0 10px rgba(0, 150, 255, 0.5);
+}
+
+.overlay-shoot {
+    background-color: rgba(255, 50, 50, 0.4);
+    outline: 2px solid rgba(255, 50, 50, 0.8);
+    box-shadow: inset 0 0 10px rgba(255, 50, 50, 0.5);
+    animation: pulseRed 1.5s infinite;
+}
+
+.overlay-selected {
+    outline: 3px solid var(--military-gold, #ffd700);
+    box-shadow: inset 0 0 15px rgba(255, 215, 0, 0.6);
+    background-color: rgba(255, 215, 0, 0.2);
+}
+
+@keyframes pulseRed {
+    0% { box-shadow: inset 0 0 5px rgba(255, 50, 50, 0.4); }
+    50% { box-shadow: inset 0 0 20px rgba(255, 50, 50, 0.8); }
+    100% { box-shadow: inset 0 0 5px rgba(255, 50, 50, 0.4); }
+}

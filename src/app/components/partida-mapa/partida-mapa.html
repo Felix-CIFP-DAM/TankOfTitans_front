@@ -1,0 +1,18 @@
+<div class="mapa-viewport" (mousedown)="onMouseDown($event)">
+    <div class="mapa-container" 
+         [style.transform]="'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + zoomLevel + ')'">
+         
+         <div *ngFor="let row of capa_suelo; let y = index" class="mapa-row">
+             <div *ngFor="let tile of row; let x = index" class="tile-cell" (click)="onClickCasilla(x, y)">
+                 <div class="base-layer"></div>
+                 <div class="tile" [ngStyle]="getTileStyle(capa_suelo[y][x])"></div>
+                 <div class="object-tile" *ngIf="capa_objetos[y][x]" [ngStyle]="getObjectStyle(capa_objetos[y][x])"></div>
+                 
+                 <!-- Highlights and Selectors -->
+                 <div class="highlight overlay-move" *ngIf="isHighlight(x, y) === 'move'"></div>
+                 <div class="highlight overlay-shoot" *ngIf="isHighlight(x, y) === 'shoot'"></div>
+                 <div class="highlight overlay-selected" *ngIf="selectedBoardTank?.x === x && selectedBoardTank?.y === y"></div>
+             </div>
+         </div>
+    </div>
+</div>

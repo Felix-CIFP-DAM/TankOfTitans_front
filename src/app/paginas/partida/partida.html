@@ -1,0 +1,14 @@
+<div class="partida-container">
+    <app-partida-hud 
+        [accionActual]="accionActual"
+        (actionSelected)="onActionSelected($event)"
+        (tankSelected)="onTankSelected($event)">
+        
+        <app-partida-mapa 
+            [accionActual]="accionActual" 
+            [tanqueEnMano]="tanqueEnMano"
+            (onTankActionComplete)="onActionSelected(null)">
+        </app-partida-mapa>
+
+    </app-partida-hud>
+</div>
