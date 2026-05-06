@@ -9,14 +9,23 @@ import { FormsModule } from '@angular/forms';
 export interface TileInfo {
   x: number;
   y: number;
-  sheet: 'grass' | 'water';
-  tipo: 'G' | 'W'; // G = Hierba (Transitable), W = Agua (Bloqueado)
+  sheet: string;
+  tipo: 'Transitable' | 'No_Transitable';
 }
 
 export interface ObjectInfo {
   x: number;
   y: number;
-  sheet: 'world';
+  sheet: string;
+  tipo: 'Transitable' | 'No_Transitable';
+}
+
+export interface PaletteDef {
+  id: string;
+  path: string;
+  cols: number;
+  rows: number;
+  type: 'suelo' | 'objeto';
 }
 
 @Component({
@@ -40,13 +49,30 @@ export class CrearMapas implements OnInit, OnDestroy {
   nombreMapa: string = 'Batalla en el Ebro';
 
   // Selection Logic
-  selectedSprite: { x: number, y: number, sheet: 'grass' | 'water' | 'world' } = { x: 6, y: 3, sheet: 'water' };
-  selectedTipo: 'G' | 'W' = 'G'; // User chooses if the current stamp acts as Grass or Water
+  selectedSprite: { x: number, y: number, sheet: string } = { x: 0, y: 0, sheet: 'suelos-1' };
+  selectedTipo: 'Transitable' | 'No_Transitable' = 'Transitable';
   isMouseDown = false;
 
-  // Palette dimensions
-  waterSheet = { cols: 8, rows: 6 };
-  grassSheet = { cols: 20, rows: 39 }; // 637px / 32px ~ 20, 1254px / 32px ~ 39
+  // Palettes
+  palettes: PaletteDef[] = [
+    { id: 'afueras-1', path: '/assets/tilesets/afueras-1.png', cols: 8, rows: 16, type: 'suelo' },
+    { id: 'paredes-1', path: '/assets/tilesets/paredes-1.png', cols: 16, rows: 15, type: 'suelo' },
+    { id: 'paredes-2', path: '/assets/tilesets/paredes-2.png', cols: 16, rows: 15, type: 'suelo' },
+    { id: 'suelos-1', path: '/assets/tilesets/suelos-1.png', cols: 16, rows: 12, type: 'suelo' },
+    { id: 'suelos-2', path: '/assets/tilesets/suelos-2.png', cols: 16, rows: 12, type: 'suelo' },
+    { id: 'suelos-3', path: '/assets/tilesets/suelos-3.png', cols: 8, rows: 16, type: 'suelo' },
+    { id: 'techos-1', path: '/assets/tilesets/techos-1.png', cols: 16, rows: 8, type: 'suelo' },
+    { id: 'techos-2', path: '/assets/tilesets/techos-2.png', cols: 16, rows: 8, type: 'suelo' },
+    { id: 'miscelaneous-1', path: '/assets/sprites/miscelaneous-1.png', cols: 16, rows: 16, type: 'objeto' },
+    { id: 'miscelaneous-2', path: '/assets/sprites/miscelaneous-2.png', cols: 16, rows: 16, type: 'objeto' },
+    { id: 'miscelaneous-3', path: '/assets/sprites/miscelaneous-3.png', cols: 16, rows: 16, type: 'objeto' },
+    { id: 'miscelaneous-4', path: '/assets/sprites/miscelaneous-4.png', cols: 16, rows: 16, type: 'objeto' },
+  ];
+  activePaletteId: string = 'suelos-1';
+
+  get activePalette(): PaletteDef | undefined {
+    return this.palettes.find(p => p.id === this.activePaletteId);
+  }
 
   private socketSub?: Subscription;
 
@@ -72,9 +98,9 @@ export class CrearMapas implements OnInit, OnDestroy {
   }
 
   initGrid() {
-    // Default: All grass
+    // Default: Suelo-1 Transitable
     this.capa_suelo = Array.from({ length: this.rows }, () =>
-      Array(this.cols).fill(null).map(() => ({ x: 6, y: 3, sheet: 'water', tipo: 'G' }))
+      Array(this.cols).fill(null).map(() => ({ x: 0, y: 0, sheet: 'suelos-1', tipo: 'Transitable' }))
     );
     this.capa_objetos = Array.from({ length: this.rows }, () =>
       Array(this.cols).fill(null)
@@ -97,25 +123,23 @@ export class CrearMapas implements OnInit, OnDestroy {
   }
 
   paint(x: number, y: number) {
-    if (this.selectedSprite.sheet === 'world') {
-      this.capa_objetos[y][x] = { ...this.selectedSprite } as ObjectInfo;
+    const palette = this.palettes.find(p => p.id === this.selectedSprite.sheet);
+    if (!palette) return;
+
+    if (palette.type === 'objeto') {
+      this.capa_objetos[y][x] = { ...this.selectedSprite, tipo: this.selectedTipo } as ObjectInfo;
     } else {
       this.capa_suelo[y][x] = {
         x: this.selectedSprite.x,
         y: this.selectedSprite.y,
-        sheet: 'water', // Fixed to water sheet as requested
+        sheet: this.selectedSprite.sheet,
         tipo: this.selectedTipo
       };
     }
   }
 
-  selectFromPalette(x: number, y: number, sheet: 'grass' | 'water' | 'world') {
+  selectFromPalette(x: number, y: number, sheet: string) {
     this.selectedSprite = { x, y, sheet };
-    // Auto-select tipo based on sheet for convenience, but user can override
-    if (sheet === 'water') {
-      // If it's near the top, it's likely water, if bottom, likely grass
-      this.selectedTipo = y < 3 ? 'W' : 'G';
-    }
   }
 
   clearObject(x: number, y: number) {
@@ -126,8 +150,8 @@ export class CrearMapas implements OnInit, OnDestroy {
     const tile = this.capa_suelo[y][x];
     const obj = this.capa_objetos[y][x];
 
-    if (obj) return false; // Any object (Cliff/Base/Tree) blocks by default unless we refine this
-    if (tile.tipo === 'W') return false; // Water blocks
+    if (obj && obj.tipo === 'No_Transitable') return false; 
+    if (tile.tipo === 'No_Transitable') return false; 
 
     return true;
   }
@@ -141,24 +165,31 @@ export class CrearMapas implements OnInit, OnDestroy {
       }
     };
     this.websocketService.emit('mapa:guardar', mapData);
-    console.log('Mapa enviado al servidor:', mapData);
+    localStorage.setItem('mapa_temp', JSON.stringify(mapData));
+    console.log('Mapa enviado al servidor y guardado en local:', mapData);
   }
 
   getTileStyle(tile: TileInfo | null) {
     if (!tile) return {};
+    const palette = this.palettes.find(p => p.id === tile.sheet);
+    if (!palette) return {};
     return {
-      'background-image': `url('/assets/tilesets/water.jpg')`,
-      'background-position': `-${tile.x * 32}px -${tile.y * 32}px`,
-      'opacity': tile.tipo === 'G' && tile.x === 6 && tile.y === 3 ? '0' : '1' // Optimization to see base grass
+      'background-image': `url('${palette.path}')`,
+      'background-position': `-${tile.x * 48}px -${tile.y * 48}px`,
+      'opacity': tile.tipo === 'Transitable' && tile.x === 0 && tile.y === 0 && tile.sheet === 'suelos-1' ? '0' : '1'
     };
   }
 
   getObjectStyle(obj: ObjectInfo | null) {
     if (!obj) return { 'display': 'none' };
+    const palette = this.palettes.find(p => p.id === obj.sheet);
+    if (!palette) return {};
     return {
-      //'background-image': `url('/assets/sprites/objetos.png')`,
-      'background-image': `url('/assets/tilesets/prueba.jpg')`,
-      'background-position': `-${obj.x * 32}px -${obj.y * 32}px`
+      'background-image': `url('${palette.path}')`,
+      'background-position': `-${obj.x * 48}px -${obj.y * 48}px`,
+      'width': '48px',
+      'height': '48px',
+      'background-size': 'auto' 
     };
   }
 

@@ -102,6 +102,12 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./paginas/preparacion/preparacion')
                 .then(m => m.Preparacion)
+    },
+    {
+        path: 'partida',
+        loadComponent: () =>
+            import('./paginas/partida/partida')
+                .then(m => m.Partida)
     }
 
 

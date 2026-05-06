@@ -17,35 +17,29 @@
             <div class="palette-section">
                 <h4>PROPIEDAD DE COLISIÓN</h4>
                 <div class="tipo-selector">
-                    <button class="btn-tipo" [class.active]="selectedTipo === 'G'" (click)="selectedTipo = 'G'">HIERBA
+                    <button class="btn-tipo" [class.active]="selectedTipo === 'Transitable'" (click)="selectedTipo = 'Transitable'">TRANSITABLE
                         (Pasar)</button>
-                    <button class="btn-tipo" [class.active]="selectedTipo === 'W'" (click)="selectedTipo = 'W'">AGUA
+                    <button class="btn-tipo" [class.active]="selectedTipo === 'No_Transitable'" (click)="selectedTipo = 'No_Transitable'">NO TRANSITABLE
                         (Bloqueo)</button>
                 </div>
                 <p class="palette-info">Define si el sprite que elijas será transitable o no.</p>
             </div>
 
             <div class="palette-section">
-                <h4>SUELO (Imagen Water.jpg)</h4>
-                <div class="palette-grid water-palette">
-                    <div *ngFor="let y of getNumbers(waterSheet.rows)" class="palette-row">
-                        <div *ngFor="let x of getNumbers(waterSheet.cols)" class="palette-tile"
-                            [class.selected]="selectedSprite.x === x && selectedSprite.y === y && selectedSprite.sheet === 'water'"
-                            [style.background-position]="'-' + (x * 32) + 'px -' + (y * 32) + 'px'"
-                            (click)="selectFromPalette(x, y, 'water')">
-                        </div>
-                    </div>
-                </div>
+                <h4>HOJA DE SPRITES</h4>
+                <select [(ngModel)]="activePaletteId" class="palette-select">
+                    <option *ngFor="let p of palettes" [value]="p.id">{{ p.id }} ({{ p.type }})</option>
+                </select>
             </div>
 
-            <div class="palette-section">
-                <h4>OBJETOS (Imagen objetos.png)</h4>
-                <div class="palette-grid grass-palette">
-                    <div *ngFor="let y of getNumbers(grassSheet.rows)" class="palette-row">
-                        <div *ngFor="let x of getNumbers(grassSheet.cols)" class="palette-tile"
-                            [class.selected]="selectedSprite.x === x && selectedSprite.y === y && selectedSprite.sheet === 'world'"
-                            [style.background-position]="'-' + (x * 32) + 'px -' + (y * 32) + 'px'"
-                            (click)="selectFromPalette(x, y, 'world')">
+            <div class="palette-section" *ngIf="activePalette">
+                <div class="palette-grid dynamic-palette">
+                    <div *ngFor="let y of getNumbers(activePalette.rows)" class="palette-row">
+                        <div *ngFor="let x of getNumbers(activePalette.cols)" class="palette-tile"
+                            [class.selected]="selectedSprite.x === x && selectedSprite.y === y && selectedSprite.sheet === activePalette.id"
+                            [style.background-image]="'url(' + activePalette.path + ')'"
+                            [style.background-position]="'-' + (x * 48) + 'px -' + (y * 48) + 'px'"
+                            (click)="selectFromPalette(x, y, activePalette.id)">
                         </div>
                     </div>
                 </div>

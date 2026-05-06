@@ -106,13 +106,12 @@
 }
 
 .palette-tile {
-    width: 32px;
-    height: 32px;
-    background-size: 256px auto;
-    /* 8 columns */
+    width: 48px;
+    height: 48px;
     image-rendering: pixelated;
     cursor: pointer;
     transition: transform 0.1s;
+    background-size: auto;
 }
 
 .palette-tile:hover {
@@ -127,19 +126,25 @@
     z-index: 6;
 }
 
-.water-palette .palette-tile {
-    background-image: url('/assets/tilesets/water.jpg');
+.palette-select {
+    width: 100%;
+    padding: 8px;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    border: 1px solid #444;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    cursor: pointer;
 }
 
-.grass-palette {
+.dynamic-palette {
     overflow-x: auto;
     max-width: 100%;
 }
 
-.grass-palette .palette-tile {
-    /*background-image: url('/assets/sprites/objetos.png');*/
-    background-image: url('/assets/tilesets/prueba.jpg');
-    background-size: 637px auto;
+.dynamic-palette .palette-row {
+    width: fit-content;
 }
 
 .grass-palette .palette-row {
@@ -182,13 +187,13 @@
 
 .labels-row {
     display: grid;
-    grid-template-columns: 32px repeat(15, 32px);
+    grid-template-columns: 48px repeat(15, 48px);
     gap: 2px;
 }
 
 .grid-row {
     display: grid;
-    grid-template-columns: 32px repeat(15, 32px);
+    grid-template-columns: 48px repeat(15, 48px);
     gap: 2px;
     margin-bottom: 2px;
 }
@@ -205,12 +210,12 @@
     padding-right: 8px;
     font-size: 0.7rem;
     color: #555;
-    line-height: 32px;
+    line-height: 48px;
 }
 
 .tile-cell {
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
     position: relative;
     cursor: crosshair;
 }
@@ -222,9 +227,9 @@
     width: 100%;
     height: 100%;
     z-index: 0;
-    background-image: url('/assets/tilesets/grass.jpg');
-    background-size: 256px auto;
-    background-position: -192px -96px;
+    background-image: url('/assets/tilesets/suelos-1.png');
+    background-size: auto;
+    background-position: 0px 0px;
     image-rendering: pixelated;
 }
 
@@ -236,7 +241,7 @@
     left: 0;
     z-index: 1;
     image-rendering: pixelated;
-    background-size: 256px auto;
+    background-size: auto;
 }
 
 .object-tile {
@@ -247,7 +252,7 @@
     height: 100%;
     z-index: 2;
     image-rendering: pixelated;
-    background-size: 256px auto;
+    background-size: auto;
     background-repeat: no-repeat;
 }
 
