@@ -8,6 +8,9 @@
                  <div class="tile" [ngStyle]="getTileStyle(capa_suelo[y][x])"></div>
                  <div class="object-tile" *ngIf="capa_objetos[y][x]" [ngStyle]="getObjectStyle(capa_objetos[y][x])"></div>
                  
+                 <!-- Capa 3: Tanques (Unidades) -->
+                 <div class="object-tile" *ngIf="capa_tanques[y][x]" [ngStyle]="getObjectStyle(capa_tanques[y][x])"></div>
+                 
                  <!-- Highlights and Selectors -->
                  <div class="highlight overlay-move" *ngIf="isHighlight(x, y) === 'move'"></div>
                  <div class="highlight overlay-shoot" *ngIf="isHighlight(x, y) === 'shoot'"></div>

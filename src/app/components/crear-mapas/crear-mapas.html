@@ -5,6 +5,16 @@
             <input type="text" [(ngModel)]="nombreMapa" class="map-name-input" placeholder="Nombre del Mapa">
         </div>
         <div class="header-actions">
+            <div class="dimension-controls">
+                <div class="input-group">
+                    <label>COLS:</label>
+                    <input type="number" [(ngModel)]="cols" (change)="initGrid()" min="1" max="50">
+                </div>
+                <div class="input-group">
+                    <label>ROWS:</label>
+                    <input type="number" [(ngModel)]="rows" (change)="initGrid()" min="1" max="50">
+                </div>
+            </div>
             <button class="btn-retro" (click)="initGrid()">LIMPIAR</button>
             <button class="btn-retro primary" (click)="saveMap()">GUARDAR EN BD</button>
         </div>
@@ -27,7 +37,7 @@
 
             <div class="palette-section">
                 <h4>HOJA DE SPRITES</h4>
-                <select [(ngModel)]="activePaletteId" class="palette-select">
+                <select [ngModel]="activePaletteId" (ngModelChange)="onPaletteChange($event)" class="palette-select">
                     <option *ngFor="let p of palettes" [value]="p.id">{{ p.id }} ({{ p.type }})</option>
                 </select>
             </div>
@@ -48,28 +58,35 @@
 
 
         <main class="grid-viewport">
-            <div class="grid-container">
-                <!-- Column Labels -->
-                <div class="labels-row">
-                    <div class="label-corner"></div>
-                    <div *ngFor="let label of colLabels" class="label-col">{{label}}</div>
-                </div>
+            <div class="grid-transform-wrapper" 
+                 [style.transform]="'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + zoomLevel + ')'">
+                <div class="grid-container">
+                    <!-- Column Labels -->
+                    <div class="labels-row" [style.grid-template-columns]="'48px repeat(' + cols + ', 48px)'">
+                        <div class="label-corner"></div>
+                        <div *ngFor="let label of colLabels" class="label-col">{{label}}</div>
+                    </div>
 
-                <!-- Grid Rows -->
-                <div *ngFor="let row of capa_suelo; let y = index" class="grid-row">
-                    <div class="label-row">{{rowLabels[y]}}</div>
-                    <div *ngFor="let tile of row; let x = index" class="tile-cell" (mousedown)="onMouseDown(x, y)"
-                        (mouseenter)="onMouseEnter(x, y)" (contextmenu)="$event.preventDefault(); clearObject(x, y)">
+                    <!-- Grid Rows -->
+                    <div *ngFor="let row of capa_suelo; let y = index" class="grid-row"
+                        [style.grid-template-columns]="'48px repeat(' + cols + ', 48px)'">
+                        <div class="label-row">{{rowLabels[y]}}</div>
+                        <div *ngFor="let tile of row; let x = index" class="tile-cell" (mousedown)="onMouseDown(x, y, $event)"
+                            (mouseenter)="onMouseEnter(x, y)" (contextmenu)="$event.preventDefault(); clearObject(x, y)">
 
-                        <!-- Capa 0: Base Layer (Optional solid grass) -->
-                        <div class="base-layer"></div>
+                            <!-- Capa 0: Base Layer (Optional solid grass) -->
+                            <div class="base-layer"></div>
 
-                        <!-- Capa 1: Suelo (Manual Selection) -->
-                        <div class="tile" [ngStyle]="getTileStyle(capa_suelo[y][x])"></div>
+                            <!-- Capa 1: Suelo (Manual Selection) -->
+                            <div class="tile" [ngStyle]="getTileStyle(capa_suelo[y][x])"></div>
 
-                        <!-- Capa 2: Objetos (Manual Selection) -->
-                        <div class="object-tile" *ngIf="capa_objetos[y][x]"
-                            [ngStyle]="getObjectStyle(capa_objetos[y][x])"></div>
+                            <!-- Capa 2: Objetos (Manual Selection) -->
+                            <div class="object-tile" *ngIf="capa_objetos[y][x]"
+                                [ngStyle]="getObjectStyle(capa_objetos[y][x])"></div>
+
+                            <!-- Indicador de Bloqueo -->
+                            <div class="no-transitable-indicator" *ngIf="!esTransitable(x, y)"></div>
+                        </div>
                     </div>
                 </div>
             </div>

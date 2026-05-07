@@ -15,6 +15,7 @@ export class PartidaMapa implements OnInit, AfterViewInit {
 
   capa_suelo: any[][] = [];
   capa_objetos: any[][] = [];
+  capa_tanques: any[][] = [];
   cols = 15;
   rows = 10;
   
@@ -27,10 +28,10 @@ export class PartidaMapa implements OnInit, AfterViewInit {
     { id: 'suelos-3', path: '/assets/tilesets/suelos-3.png' },
     { id: 'techos-1', path: '/assets/tilesets/techos-1.png' },
     { id: 'techos-2', path: '/assets/tilesets/techos-2.png' },
-    { id: 'miscelaneous-1', path: '/assets/sprites/miscelaneous-1.png' },
-    { id: 'miscelaneous-2', path: '/assets/sprites/miscelaneous-2.png' },
-    { id: 'miscelaneous-3', path: '/assets/sprites/miscelaneous-3.png' },
-    { id: 'miscelaneous-4', path: '/assets/sprites/miscelaneous-4.png' }
+    { id: 'miscelaneous-1', path: '/assets/sprites/miscelaneous-1.png', cols: 16, rows: 16 },
+    { id: 'miscelaneous-2', path: '/assets/sprites/miscelaneous-2.png', cols: 16, rows: 16 },
+    { id: 'miscelaneous-3', path: '/assets/sprites/miscelaneous-3.png', cols: 16, rows: 16 },
+    { id: 'miscelaneous-4', path: '/assets/sprites/miscelaneous-4.png', cols: 16, rows: 16 }
   ];
 
   zoomLevel = 1.0;
@@ -57,11 +58,20 @@ export class PartidaMapa implements OnInit, AfterViewInit {
             this.rows = this.capa_suelo.length;
             this.cols = this.capa_suelo[0].length;
           }
+          this.initTanques();
         }
       } catch (e) {
         console.error("Error cargando mapa:", e);
       }
+    } else {
+      this.initTanques();
     }
+  }
+
+  initTanques() {
+    this.capa_tanques = Array.from({ length: this.rows }, () =>
+      Array(this.cols).fill(null)
+    );
   }
 
   ngAfterViewInit() {
@@ -143,7 +153,7 @@ export class PartidaMapa implements OnInit, AfterViewInit {
   getObjectStyle(obj: any) {
     if (!obj) return { 'display': 'none' };
     
-    const palette = this.palettes.find(p => p.id === obj.sheet);
+    const palette = (this.palettes as any[]).find(p => p.id === obj.sheet);
     if (!palette) {
        return {
          'background-image': `url('/assets/sprites/miscelaneous-1.png')`,
@@ -153,12 +163,18 @@ export class PartidaMapa implements OnInit, AfterViewInit {
          'background-size': 'auto' 
        };
     }
+
+    // Si tenemos las dimensiones de la paleta, calculamos el background-size para que cada frame sea de 48x48
+    const bgSize = (palette.cols && palette.rows) 
+      ? `${palette.cols * 48}px ${palette.rows * 48}px` 
+      : 'auto';
+
     return {
       'background-image': `url('${palette.path}')`,
       'background-position': `-${(obj.x || 0) * 48}px -${(obj.y || 0) * 48}px`,
       'width': '48px',
       'height': '48px',
-      'background-size': 'auto' 
+      'background-size': bgSize
     };
   }
 
@@ -170,8 +186,15 @@ export class PartidaMapa implements OnInit, AfterViewInit {
     const distance = dx + dy;
 
     if (this.accionActual === 'Mover' && distance > 0 && distance <= 3) {
-      const isTransitable = this.capa_suelo[y][x]?.tipo !== 'No_Transitable' && !this.capa_objetos[y][x];
-      if (isTransitable) return 'move';
+      const tile = this.capa_suelo[y][x];
+      const obj = this.capa_objetos[y][x];
+      const tank = this.capa_tanques[y][x];
+      
+      const sueloTransitable = tile?.tipo !== 'No_Transitable';
+      const objetoBloquea = obj && obj.tipo === 'No_Transitable';
+      const ocupadoPorTanque = !!tank;
+      
+      if (sueloTransitable && !objetoBloquea && !ocupadoPorTanque) return 'move';
     }
 
     if (this.accionActual === 'Disparar' && distance > 0 && distance <= 5) {
@@ -185,8 +208,8 @@ export class PartidaMapa implements OnInit, AfterViewInit {
     if (!this.accionActual) return;
 
     if (this.accionActual === 'Poner') {
-      if (this.tanqueEnMano && !this.capa_objetos[y][x]) {
-        this.capa_objetos[y][x] = {
+      if (this.tanqueEnMano && !this.capa_tanques[y][x]) {
+        this.capa_tanques[y][x] = {
           isTank: true,
           id: this.tanqueEnMano.id,
           sheet: this.tanqueEnMano.sheet,
@@ -196,13 +219,13 @@ export class PartidaMapa implements OnInit, AfterViewInit {
       }
     } else if (this.accionActual === 'Mover') {
       if (!this.selectedBoardTank) {
-        if (this.capa_objetos[y][x] && this.capa_objetos[y][x].isTank) {
+        if (this.capa_tanques[y][x] && this.capa_tanques[y][x].isTank) {
           this.selectedBoardTank = {x, y};
         }
       } else {
         if (this.isHighlight(x, y) === 'move') {
-          this.capa_objetos[y][x] = this.capa_objetos[this.selectedBoardTank.y][this.selectedBoardTank.x];
-          this.capa_objetos[this.selectedBoardTank.y][this.selectedBoardTank.x] = null;
+          this.capa_tanques[y][x] = this.capa_tanques[this.selectedBoardTank.y][this.selectedBoardTank.x];
+          this.capa_tanques[this.selectedBoardTank.y][this.selectedBoardTank.x] = null;
           this.selectedBoardTank = null;
           this.onTankActionComplete.emit();
         } else {
@@ -211,11 +234,11 @@ export class PartidaMapa implements OnInit, AfterViewInit {
       }
     } else if (this.accionActual === 'Disparar') {
       if (!this.selectedBoardTank) {
-        if (this.capa_objetos[y][x] && this.capa_objetos[y][x].isTank) {
+        if (this.capa_tanques[y][x] && this.capa_tanques[y][x].isTank) {
           this.selectedBoardTank = {x, y};
         }
       } else {
-        if (this.isHighlight(x, y) === 'shoot' && this.capa_objetos[y][x] && this.capa_objetos[y][x].isTank) {
+        if (this.isHighlight(x, y) === 'shoot' && this.capa_tanques[y][x] && this.capa_tanques[y][x].isTank) {
           console.log("¡Boom! Tanque atacado en", x, y);
           this.selectedBoardTank = null;
           this.onTankActionComplete.emit();

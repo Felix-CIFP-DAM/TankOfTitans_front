@@ -40,11 +40,26 @@ export class CrearMapas implements OnInit, OnDestroy {
   capa_suelo: TileInfo[][] = [];
   capa_objetos: (ObjectInfo | null)[][] = [];
 
-  cols = 15;
-  rows = 10;
+  cols = 20;
+  rows = 15;
 
-  colLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
-  rowLabels = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
+  get colLabels(): string[] {
+    const labels = [];
+    for (let i = 0; i < this.cols; i++) {
+      let label = '';
+      let n = i;
+      while (n >= 0) {
+        label = String.fromCharCode((n % 26) + 65) + label;
+        n = Math.floor(n / 26) - 1;
+      }
+      labels.push(label);
+    }
+    return labels;
+  }
+
+  get rowLabels(): string[] {
+    return Array.from({ length: this.rows }, (_, i) => (i + 1).toString());
+  }
 
   nombreMapa: string = 'Batalla en el Ebro';
 
@@ -52,6 +67,14 @@ export class CrearMapas implements OnInit, OnDestroy {
   selectedSprite: { x: number, y: number, sheet: string } = { x: 0, y: 0, sheet: 'suelos-1' };
   selectedTipo: 'Transitable' | 'No_Transitable' = 'Transitable';
   isMouseDown = false;
+
+  // Zoom & Pan state
+  zoomLevel = 1.0;
+  isDragging = false;
+  dragStartX = 0;
+  dragStartY = 0;
+  translateX = 0;
+  translateY = 0;
 
   // Palettes
   palettes: PaletteDef[] = [
@@ -107,9 +130,21 @@ export class CrearMapas implements OnInit, OnDestroy {
     );
   }
 
-  onMouseDown(x: number, y: number) {
-    this.isMouseDown = true;
-    this.paint(x, y);
+  resizeGrid(newCols: number, newRows: number) {
+    this.cols = newCols;
+    this.rows = newRows;
+    this.initGrid();
+  }
+
+  onMouseDown(x: number, y: number, event: MouseEvent) {
+    if (event.button === 0 && !event.shiftKey) {
+      this.isMouseDown = true;
+      this.paint(x, y);
+    } else if (event.button === 1 || (event.button === 0 && event.shiftKey)) {
+      this.isDragging = true;
+      this.dragStartX = event.clientX - this.translateX;
+      this.dragStartY = event.clientY - this.translateY;
+    }
   }
 
   onMouseEnter(x: number, y: number) {
@@ -118,8 +153,33 @@ export class CrearMapas implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('window:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.isDragging) {
+      this.translateX = event.clientX - this.dragStartX;
+      this.translateY = event.clientY - this.dragStartY;
+    }
+  }
+
+  @HostListener('window:mouseup')
   onMouseUp() {
     this.isMouseDown = false;
+    this.isDragging = false;
+  }
+
+  @HostListener('wheel', ['$event'])
+  onWheel(event: WheelEvent) {
+    // Solo hacer zoom si el ratón está sobre el viewport del mapa
+    const target = event.target as HTMLElement;
+    if (target.closest('.grid-viewport')) {
+      event.preventDefault();
+      const zoomSpeed = 0.1;
+      if (event.deltaY < 0) {
+        this.zoomLevel = Math.min(this.zoomLevel + zoomSpeed, 3.0);
+      } else {
+        this.zoomLevel = Math.max(this.zoomLevel - zoomSpeed, 0.2);
+      }
+    }
   }
 
   paint(x: number, y: number) {
@@ -140,6 +200,17 @@ export class CrearMapas implements OnInit, OnDestroy {
 
   selectFromPalette(x: number, y: number, sheet: string) {
     this.selectedSprite = { x, y, sheet };
+    
+    // Smart default: If it's a wall or water, set to No_Transitable
+    if (sheet.includes('paredes') || sheet.includes('afueras')) {
+      this.selectedTipo = 'No_Transitable';
+    } else if (sheet.includes('suelos') || sheet.includes('techos')) {
+      this.selectedTipo = 'Transitable';
+    }
+  }
+
+  onPaletteChange(newId: string) {
+    this.activePaletteId = newId;
   }
 
   clearObject(x: number, y: number) {
@@ -150,8 +221,8 @@ export class CrearMapas implements OnInit, OnDestroy {
     const tile = this.capa_suelo[y][x];
     const obj = this.capa_objetos[y][x];
 
-    if (obj && obj.tipo === 'No_Transitable') return false; 
-    if (tile.tipo === 'No_Transitable') return false; 
+    if (obj && obj.tipo === 'No_Transitable') return false;
+    if (tile.tipo === 'No_Transitable') return false;
 
     return true;
   }
@@ -189,7 +260,7 @@ export class CrearMapas implements OnInit, OnDestroy {
       'background-position': `-${obj.x * 48}px -${obj.y * 48}px`,
       'width': '48px',
       'height': '48px',
-      'background-size': 'auto' 
+      'background-size': 'auto'
     };
   }
 
