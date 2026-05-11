@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
-import { io, Socket} from 'socket.io-client';
-import { Observable, Subscriber} from 'rxjs';
+import { io, Socket } from 'socket.io-client';
+import { Observable, Subscriber } from 'rxjs';
 import { environment } from '../environments/environment';
 
 @Injectable({
@@ -11,9 +11,13 @@ export class WebsocketService {
   private socket: Socket;
 
   constructor(private ngZone: NgZone) {
-    this.socket = io(environment.socketUrl, {
+    this.socket = io(environment.socketUrlLocal, {
       transports: ['websocket'],
-      autoConnect: false
+      autoConnect: true
+    });
+
+    this.socket.on('connect', () => {
+      console.log('✅ Conectado al servidor de lógica (Node.js)');
     });
   }
 
@@ -34,7 +38,7 @@ export class WebsocketService {
     this.socket.emit(evento, datos);
   }
 
-  listen(evento: string): Observable<any>{
+  listen(evento: string): Observable<any> {
     return new Observable((subscriber) => {
       const handler = (datos: any) => {
         this.ngZone.run(() => {
@@ -51,7 +55,7 @@ export class WebsocketService {
   }
 
   disconnect() {
-    if(this.socket) {
+    if (this.socket) {
       this.socket.disconnect();
     }
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AutotilingService } from '../../services/autotiling.service';
 import { WebsocketService } from '../../services/websocket-service';
@@ -200,7 +200,7 @@ export class CrearMapas implements OnInit, OnDestroy {
 
   selectFromPalette(x: number, y: number, sheet: string) {
     this.selectedSprite = { x, y, sheet };
-    
+
     // Smart default: If it's a wall or water, set to No_Transitable
     if (sheet.includes('paredes') || sheet.includes('afueras')) {
       this.selectedTipo = 'No_Transitable';

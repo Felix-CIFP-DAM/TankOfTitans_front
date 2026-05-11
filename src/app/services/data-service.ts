@@ -14,7 +14,7 @@ import { TalkerService } from './talker-service';
 })
 export class DataService {
 
-  private apiUrl = environment.socketUrl;
+  private apiUrl = environment.socketUrlLocal;
 
   constructor(
     private socketService: WebsocketService,
@@ -26,37 +26,41 @@ export class DataService {
 
   login(datosLogin: any): Observable<Auth> {
     const respuesta = new Subject<Auth>();
-
-    this.socketService.emit('intentar_login', datosLogin);
-
-    this.socketService.listen('login_resultado').subscribe((res: any) => {
-      if (res.success) {
-        this.talker.notificarExito('Sesión Iniciada');
-        this.crearSesion(res.authData);
-        respuesta.next(res.authData);
-      } else {
-        respuesta.error(res.mensaje);
-      }
+    this.socketService.emit('login', datosLogin);
+    this.socketService.listen('loginSuccess').subscribe((res: any) => {
+      console.log("✅ Login exitoso:", res);
+      this.talker.notificarExito('Sesión Iniciada');
+      // Usamos 'res' directamente porque contiene {token, userId, nickname}
+      this.crearSesion(res);
+      respuesta.next(res);
     });
-
+    this.socketService.listen('loginError').subscribe((err: any) => {
+      this.talker.notificarError(err.error || 'Credenciales incorrectas');
+      respuesta.error(err);
+    });
     return respuesta.asObservable();
   }
 
+
   registro(datosRegistro: any): Observable<Auth> {
     const respuesta = new Subject<Auth>();
+    this.socketService.emit('register', datosRegistro);
+    // Si llega este evento, es que HA IDO BIEN
+    this.socketService.listen('registerSuccess').subscribe((res: any) => {
+      console.log("✅ Registro exitoso:", res);
+      this.talker.notificarExito(res.message || 'Usuario registrado correctamente');
 
-    this.socketService.emit('intentar_registro', datosRegistro);
+      this.crearSesion(res);
 
-    this.socketService.listen('registro_resultado').subscribe((res: any) => {
-      if (res.success) {
-        this.talker.notificarExito('Usuario registrado');
-        this.crearSesion(res.authData);
-        respuesta.next(res.authData);
-      } else {
-        respuesta.error(res.mensaje);
-      }
+      respuesta.next(res);
+      respuesta.complete(); // Importante completar el Subject
     });
-
+    // Escuchamos el evento de error específico
+    this.socketService.listen('registerError').subscribe((err: any) => {
+      console.error("❌ Error de registro:", err);
+      this.talker.notificarError(err.error || 'Error en el registro');
+      respuesta.error(err);
+    });
     return respuesta.asObservable();
   }
 
@@ -171,9 +175,9 @@ export class DataService {
         this.talker.notificarExito('Perfil actualizado');
         if (datos.nickname) sessionStorage.setItem("nickname", datos.nickname);
         if (datos.icono) {
-            // Guardamos solo el nombre del archivo, sin prefijos si los tuviera
-            const iconoLimpio = datos.icono.split('/').pop() || datos.icono;
-            sessionStorage.setItem("icono", iconoLimpio);
+          // Guardamos solo el nombre del archivo, sin prefijos si los tuviera
+          const iconoLimpio = datos.icono.split('/').pop() || datos.icono;
+          sessionStorage.setItem("icono", iconoLimpio);
         }
         respuesta.next(res);
       } else {
