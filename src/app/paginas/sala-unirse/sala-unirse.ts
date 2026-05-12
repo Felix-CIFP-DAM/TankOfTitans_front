@@ -50,7 +50,7 @@ export class SalaUnirse implements OnInit {
   }
 
   capacidadPorcentaje(sala: Sala): number {
-    return (sala.jugadoresActuales / sala.jugadoresMaximos) * 100;
+    return (sala.jugadores / 2) * 100;
   }
 
   unirse() {
@@ -58,11 +58,11 @@ export class SalaUnirse implements OnInit {
       this.error = 'Selecciona una sala primero';
       return;
     }
-    if (this.salaSeleccionada.esPrivada && !this.contrasena.trim()) {
+    if (!this.salaSeleccionada.publica && !this.contrasena.trim()) {
       this.error = 'Esta sala requiere contraseña';
       return;
     }
-    if (this.salaSeleccionada.jugadoresActuales >= this.salaSeleccionada.jugadoresMaximos) {
+    if (this.salaSeleccionada.jugadores >= 2) {
       this.error = 'La sala está llena';
       return;
     }
@@ -70,8 +70,9 @@ export class SalaUnirse implements OnInit {
     this.error = '';
     this.cargando = true;
 
-    const datos: any = { salaId: this.salaSeleccionada.id };
-    if (this.salaSeleccionada.esPrivada) datos.contrasena = this.contrasena;
+    const datos: any = { partidaId: this.salaSeleccionada.id };
+    if (!this.salaSeleccionada.publica) datos.password = this.contrasena;
+
 
     this.dataService.unirseASala(datos).subscribe({
       next: (res) => {

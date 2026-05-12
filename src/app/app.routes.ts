@@ -88,6 +88,12 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('./components/crear-usuario/crear-usuario')
                         .then(m => m.CrearUsuario)
+            },
+            {
+                path: 'avatares',
+                loadComponent: () =>
+                    import('./paginas/panel-admin/crear-avatar/crear-avatar')
+                        .then(m => m.CrearAvatarComponent)
             }
         ]
     },

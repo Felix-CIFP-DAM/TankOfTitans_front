@@ -84,30 +84,28 @@ export class PanelPrincipal implements OnInit {
   }
 
   onPerfilActualizado(perfil: Perfil) {
-    // Actualizamos inmediatamente con los datos recibidos del modal
-    if (perfil.nickname) this.nickname = perfil.nickname;
-
-    if (perfil.icono) {
-      const nombreArchivo = perfil.icono.split('/').pop() || perfil.icono;
-      if (nombreArchivo === 'perfil_icono.png') {
-        this.perfil_imagen = nombreArchivo;
-      } else {
-        this.perfil_imagen = 'perfiles/' + nombreArchivo;
-      }
+    if (perfil.nickname) {
+      this.nickname = perfil.nickname;
+      sessionStorage.setItem('nickname', perfil.nickname);
     }
-
-    // También refrescamos desde storage por si acaso
-    this.actualizarDatosLocales();
+    if (perfil.iconoImagen) {
+      this.perfil_imagen = 'perfiles/' + perfil.iconoImagen;
+    }
   }
 
+
   onSalaCreada(res: any) {
-    console.log('Sala creada:', res);
-    // Podrías navegar a la sala aquí: this.router.navigate(['/sala', res.id]);
+    console.log('[FRONT][PanelPrincipal] ✅ Sala creada:', res);
+    // Navegamos a la sala de preparación pasando el ID de la partida
+    this.router.navigate(['/preparacion'], { queryParams: { id: res.id } });
   }
 
   onUnidoASala(res: any) {
-    console.log('Unido a sala:', res);
+    console.log('[FRONT][PanelPrincipal] ✅ Unido a sala:', res);
+    // Navegamos a la sala de preparación pasando el ID de la partida
+    this.router.navigate(['/preparacion'], { queryParams: { id: res.id } });
   }
+
 
   irTienda() {
     this.router.navigate(['/tienda']);

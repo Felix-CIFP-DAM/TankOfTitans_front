@@ -1,7 +1,10 @@
 export interface Sala {
-  id: string;
+  id: number;
   nombre: string;
-  jugadoresActuales: number;
-  jugadoresMaximos: number;
-  esPrivada: boolean;
+  publica: boolean;
+  estado: string;
+  hostNickname: string;
+  jugadores: number;
+  invitadoListo: boolean;
 }
+

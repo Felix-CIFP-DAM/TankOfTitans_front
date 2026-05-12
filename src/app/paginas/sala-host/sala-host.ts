@@ -42,11 +42,12 @@ export class SalaHost {
 
     const datos: any = {
       nombre: this.nombreSala.trim(),
-      esPrivada: this.esPrivada,
+      publica: !this.esPrivada,
     };
-    if (this.esPrivada) datos.contrasena = this.contrasena;
+    if (this.esPrivada) datos.password = this.contrasena;
 
     this.dataService.crearSala(datos).subscribe({
+
       next: (res) => {
         this.cargando = false;
         this.salaCreada.emit(res);
