@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
     {
@@ -67,6 +68,7 @@ export const routes: Routes = [
     },
     {
         path: 'panelAdmin',
+        canActivate: [adminGuard],
         loadComponent: () =>
             import('./paginas/panel-admin/panel-admin')
                 .then(m => m.PanelAdmin),

@@ -78,6 +78,7 @@ export class DataService {
     sessionStorage.setItem("nombre", datosLogin.nombre ?? '');
     sessionStorage.setItem("icono_id", String(datosLogin.icono ?? 0));
     sessionStorage.setItem("icono", datosLogin.iconoImagen ?? '');
+    sessionStorage.setItem("rol", datosLogin.rol ?? 'USER');
 
     // Actualizamos el token en el socket para que el middleware de Node nos reconozca
     if (datosLogin.token) {
@@ -92,6 +93,7 @@ export class DataService {
       nombre: sessionStorage.getItem('nombre'),
       icono_id: sessionStorage.getItem('icono_id'),
       icono: sessionStorage.getItem('icono'),
+      rol: sessionStorage.getItem('rol'),
     });
 
     this.router.navigate(['/menu']);
@@ -116,6 +118,11 @@ export class DataService {
     sessionStorage.removeItem("nombre");
     sessionStorage.removeItem("userId");
     sessionStorage.removeItem("icono");
+    sessionStorage.removeItem("rol");
+  }
+
+  obtenerRol() {
+    return sessionStorage.getItem("rol");
   }
 
   cerrarSesion() {

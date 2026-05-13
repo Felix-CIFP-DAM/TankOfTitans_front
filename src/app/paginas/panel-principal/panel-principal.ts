@@ -122,4 +122,8 @@ export class PanelPrincipal implements OnInit {
     this.router.navigate(['/']);
   }
 
+  get esAdmin(): boolean {
+    return this.dataService.obtenerRol() === 'ADMINISTRADOR';
+  }
+
 }

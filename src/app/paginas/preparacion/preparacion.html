@@ -25,7 +25,7 @@
                     <div class="roster-grid">
                         <div *ngFor="let tanque of ligeros" class="tank-card"
                             [class.selected]="peloton().includes(tanque)" (click)="seleccionarTanque(tanque)">
-                            <div class="tank-thumb"><img [src]="tanque.imagen_icono" alt="tank"></div>
+                            <div class="tank-thumb"><img [src]="tanque.imagen_full" alt="tank"></div>
                             <span class="tank-name">{{tanque.nombre}}</span>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                     <div class="roster-grid">
                         <div *ngFor="let tanque of medianos" class="tank-card"
                             [class.selected]="peloton().includes(tanque)" (click)="seleccionarTanque(tanque)">
-                            <div class="tank-thumb"><img [src]="tanque.imagen_icono" alt="tank"></div>
+                            <div class="tank-thumb"><img [src]="tanque.imagen_full" alt="tank"></div>
                             <span class="tank-name">{{tanque.nombre}}</span>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                     <div class="roster-grid">
                         <div *ngFor="let tanque of pesados" class="tank-card"
                             [class.selected]="peloton().includes(tanque)" (click)="seleccionarTanque(tanque)">
-                            <div class="tank-thumb"><img [src]="tanque.imagen_icono" alt="tank"></div>
+                            <div class="tank-thumb"><img [src]="tanque.imagen_full" alt="tank"></div>
                             <span class="tank-name">{{tanque.nombre}}</span>
                         </div>
                     </div>
@@ -58,16 +58,16 @@
 
             <!-- Status Message -->
             <div class="selection-status">
-                <p *ngIf="peloton().length < 5">SELECCIONA TU ESCUADRÓN ({{peloton().length}}/5)</p>
-                <p *ngIf="peloton().length === 5" class="ready-msg">¡ESCUADRÓN COMPLETO!</p>
+                <p *ngIf="peloton().length < 3">SELECCIONA TU ESCUADRÓN ({{peloton().length}}/3)</p>
+                <p *ngIf="peloton().length === 3" class="ready-msg">¡ESCUADRÓN COMPLETO!</p>
             </div>
 
             <!-- Podium Area -->
             <div class="podium-area">
-                <div *ngFor="let slot of [0,1,2,3,4]" class="podium-slot">
+                <div *ngFor="let slot of [0,1,2]" class="podium-slot">
                     <div *ngIf="peloton()[slot] as t" class="selected-tank-display animate-in">
                         <div class="tank-model">
-                            <img [src]="t.imagen_icono" alt="tank">
+                            <img [src]="t.imagen_full" alt="tank">
                             <div class="platform-glow"></div>
                         </div>
                         <div class="tank-specs">
@@ -109,11 +109,22 @@
             </div>
 
             <div class="actions-area">
-                <button class="ready-toggle btn-poly" [disabled]="peloton().length !== 5"
-                    [class.btn-locked]="peloton().length !== 5" (click)="toggleListo()">
+                <button class="ready-toggle btn-poly" [disabled]="peloton().length !== 3"
+                    [class.btn-locked]="peloton().length !== 3" (click)="toggleListo()">
                     {{ yoListo ? 'DESACTIVAR' : 'DESPLEGAR' }}
                 </button>
             </div>
         </aside>
+    </div>
+
+    <!-- Countdown Overlay -->
+    <div *ngIf="cuentaAtras() !== null" class="countdown-overlay">
+        <div class="countdown-content">
+            <span class="countdown-label">DESPLIEGUE INMINENTE</span>
+            <span class="countdown-number">{{cuentaAtras()}}</span>
+            <div class="countdown-bar">
+                <div class="countdown-progress" [style.width.%]="(cuentaAtras()! / 5) * 100"></div>
+            </div>
+        </div>
     </div>
 </div>
