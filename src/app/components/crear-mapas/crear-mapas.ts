@@ -114,6 +114,16 @@ export class CrearMapas implements OnInit, OnDestroy {
         this.nombreMapa = mapData.nombreMapa || this.nombreMapa;
       }
     });
+
+    this.websocketService.listen('mapa:guardado').subscribe((res: any) => {
+      if (res.success) {
+        console.log('✅ Mapa guardado con éxito:', res.mapa);
+        alert('Mapa guardado correctamente');
+      } else {
+        console.error('❌ Error al guardar:', res.mensaje);
+        alert('Error al guardar el mapa: ' + res.mensaje);
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -230,6 +240,8 @@ export class CrearMapas implements OnInit, OnDestroy {
   saveMap() {
     const mapData = {
       nombreMapa: this.nombreMapa,
+      ancho: this.cols,
+      alto: this.rows,
       data: {
         suelo: this.capa_suelo,
         objetos: this.capa_objetos

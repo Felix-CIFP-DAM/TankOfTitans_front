@@ -111,7 +111,7 @@
             <div class="actions-area">
                 <button class="ready-toggle btn-poly" [disabled]="peloton().length !== 5"
                     [class.btn-locked]="peloton().length !== 5" (click)="toggleListo()">
-                    {{ jugadores[0].listo ? 'DESACTIVAR' : 'DESPLEGAR' }}
+                    {{ yoListo ? 'DESACTIVAR' : 'DESPLEGAR' }}
                 </button>
             </div>
         </aside>

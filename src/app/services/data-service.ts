@@ -260,4 +260,20 @@ export class DataService {
   }
 
 
+  // ===================== TANQUES =====================
+
+  obtenerTanques(): Observable<any[]> {
+    const respuesta = new Subject<any[]>();
+    const token = this.obtenerToken();
+    console.log('[FRONT][DataService] 📤 Emitiendo obtener_tanques');
+    this.socketService.emit('obtener_tanques', { token });
+
+    this.socketService.listen('tanques_usuario').pipe(first()).subscribe((res: any) => {
+      console.log('[FRONT][DataService] 📥 tanques_usuario recibido ->', Array.isArray(res) ? `${res.length} tanques` : res);
+      respuesta.next(res);
+    });
+
+    return respuesta.asObservable();
+  }
+
 }
