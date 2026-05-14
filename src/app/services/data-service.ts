@@ -283,4 +283,19 @@ export class DataService {
     return respuesta.asObservable();
   }
 
+  // ===================== MAPAS =====================
+
+  listarMapas(): Observable<any[]> {
+    const respuesta = new Subject<any[]>();
+    const token = this.obtenerToken();
+    console.log('[FRONT][DataService] 📤 Emitiendo listar_mapas');
+    this.socketService.emit('listar_mapas', { token });
+
+    this.socketService.listen('mapas_lista').pipe(first()).subscribe((res: any) => {
+      console.log('[FRONT][DataService] 📥 mapas_lista recibido ->', Array.isArray(res) ? `${res.length} mapas` : res);
+      respuesta.next(res);
+    });
+
+    return respuesta.asObservable();
+  }
 }

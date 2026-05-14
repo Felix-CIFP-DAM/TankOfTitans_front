@@ -11,7 +11,10 @@ import { CommonModule } from '@angular/common';
 export class PartidaMapa implements OnInit, AfterViewInit {
   @Input() accionActual: 'Mover' | 'Disparar' | 'Poner' | null = null;
   @Input() tanqueEnMano: any = null;
-  @Output() onTankActionComplete = new EventEmitter<void>();
+  @Input() gameState: any = null;
+  @Input() miUsuario: any = null;
+  
+  @Output() onCasillaClick = new EventEmitter<{x: number, y: number}>();
 
   capa_suelo: any[][] = [];
   capa_objetos: any[][] = [];
@@ -41,7 +44,6 @@ export class PartidaMapa implements OnInit, AfterViewInit {
   translateX = 0;
   translateY = 0;
 
-  // Selected tank on the board (for moving/shooting)
   selectedBoardTank: {x: number, y: number} | null = null;
 
   constructor(private el: ElementRef) {}
@@ -75,7 +77,6 @@ export class PartidaMapa implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Timeout para permitir que Angular renderice el grid primero
     setTimeout(() => {
       this.centerAndFitMap();
     }, 0);
@@ -89,21 +90,13 @@ export class PartidaMapa implements OnInit, AfterViewInit {
   centerAndFitMap() {
     const container = this.el.nativeElement.querySelector('.mapa-viewport');
     if (!container) return;
-
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-
     const mapWidth = this.cols * 48;
     const mapHeight = this.rows * 48;
-
-    // Calcular zoom para que el mapa encaje dentro del viewport
     const zoomX = containerWidth / mapWidth;
     const zoomY = containerHeight / mapHeight;
-    
-    // Usamos el zoom menor para que el mapa entero se vea si es posible
     this.zoomLevel = Math.min(zoomX, zoomY, 2.0); 
-
-    // Centramos el mapa
     this.translateX = (containerWidth - (mapWidth * this.zoomLevel)) / 2;
     this.translateY = (containerHeight - (mapHeight * this.zoomLevel)) / 2;
   }
@@ -111,25 +104,19 @@ export class PartidaMapa implements OnInit, AfterViewInit {
   constrainPan() {
     const container = this.el.nativeElement.querySelector('.mapa-viewport');
     if (!container) return;
-
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-
     const mapWidth = this.cols * 48 * this.zoomLevel;
     const mapHeight = this.rows * 48 * this.zoomLevel;
 
-    // Eje X
     if (mapWidth <= containerWidth) {
-      // Si el mapa es más pequeño que el contenedor, se centra y no se puede arrastrar
       this.translateX = (containerWidth - mapWidth) / 2;
     } else {
-      // Si el mapa es más grande, no permitimos ver los bordes vacíos
       const minX = containerWidth - mapWidth;
       const maxX = 0;
       this.translateX = Math.max(minX, Math.min(maxX, this.translateX));
     }
 
-    // Eje Y
     if (mapHeight <= containerHeight) {
       this.translateY = (containerHeight - mapHeight) / 2;
     } else {
@@ -152,23 +139,9 @@ export class PartidaMapa implements OnInit, AfterViewInit {
 
   getObjectStyle(obj: any) {
     if (!obj) return { 'display': 'none' };
-    
     const palette = (this.palettes as any[]).find(p => p.id === obj.sheet);
-    if (!palette) {
-       return {
-         'background-image': `url('/assets/sprites/miscelaneous-1.png')`,
-         'background-position': `-0px -0px`,
-         'width': '48px',
-         'height': '48px',
-         'background-size': 'auto' 
-       };
-    }
-
-    // Si tenemos las dimensiones de la paleta, calculamos el background-size para que cada frame sea de 48x48
-    const bgSize = (palette.cols && palette.rows) 
-      ? `${palette.cols * 48}px ${palette.rows * 48}px` 
-      : 'auto';
-
+    if (!palette) return {};
+    const bgSize = (palette.cols && palette.rows) ? `${palette.cols * 48}px ${palette.rows * 48}px` : 'auto';
     return {
       'background-image': `url('${palette.path}')`,
       'background-position': `-${(obj.x || 0) * 48}px -${(obj.y || 0) * 48}px`,
@@ -178,90 +151,81 @@ export class PartidaMapa implements OnInit, AfterViewInit {
     };
   }
 
-  isHighlight(x: number, y: number): 'move' | 'shoot' | null {
+  isHighlight(x: number, y: number): 'move' | 'shoot' | 'place' | null {
+    if (this.accionActual === 'Poner' && this.tanqueEnMano) {
+      if (this.esColocable(x, y)) return 'place';
+    }
+
     if (!this.accionActual || !this.selectedBoardTank) return null;
-    
     const dx = Math.abs(x - this.selectedBoardTank.x);
     const dy = Math.abs(y - this.selectedBoardTank.y);
     const distance = dx + dy;
 
     if (this.accionActual === 'Mover' && distance > 0 && distance <= 3) {
-      const tile = this.capa_suelo[y][x];
-      const obj = this.capa_objetos[y][x];
-      const tank = this.capa_tanques[y][x];
-      
-      const sueloTransitable = tile?.tipo !== 'No_Transitable';
-      const objetoBloquea = obj && obj.tipo === 'No_Transitable';
-      const ocupadoPorTanque = !!tank;
-      
-      if (sueloTransitable && !objetoBloquea && !ocupadoPorTanque) return 'move';
+      if (this.esTransitable(x, y) && !this.hayTanque(x, y)) return 'move';
     }
-
-    if (this.accionActual === 'Disparar' && distance > 0 && distance <= 5) {
-      return 'shoot';
-    }
+    if (this.accionActual === 'Disparar' && distance > 0 && distance <= 5) return 'shoot';
 
     return null;
   }
 
-  onClickCasilla(x: number, y: number) {
-    if (!this.accionActual) return;
+  esColocable(x: number, y: number): boolean {
+    if (!this.esTransitable(x, y) || this.hayTanque(x, y)) return false;
+    
+    // Buscar base del jugador
+    const miNick = sessionStorage.getItem('nickname');
+    const miJugador = this.gameState?.jugadores ? Object.values(this.gameState.jugadores).find((j: any) => j.nickname === miNick) : null;
+    if (!miJugador) return false;
 
-    if (this.accionActual === 'Poner') {
-      if (this.tanqueEnMano && !this.capa_tanques[y][x]) {
-        this.capa_tanques[y][x] = {
-          isTank: true,
-          id: this.tanqueEnMano.id,
-          sheet: this.tanqueEnMano.sheet,
-          x: 0, y: 0
-        };
-        this.onTankActionComplete.emit();
-      }
-    } else if (this.accionActual === 'Mover') {
-      if (!this.selectedBoardTank) {
-        if (this.capa_tanques[y][x] && this.capa_tanques[y][x].isTank) {
-          this.selectedBoardTank = {x, y};
-        }
-      } else {
-        if (this.isHighlight(x, y) === 'move') {
-          this.capa_tanques[y][x] = this.capa_tanques[this.selectedBoardTank.y][this.selectedBoardTank.x];
-          this.capa_tanques[this.selectedBoardTank.y][this.selectedBoardTank.x] = null;
-          this.selectedBoardTank = null;
-          this.onTankActionComplete.emit();
-        } else {
-          this.selectedBoardTank = null;
+    // J1 es Host (Base_J1), J2 es Invitado (Base_J2)
+    // En el backend lo marcamos en el GameState.
+    // Por ahora simplificamos: el host es el primero en Object.keys
+    const isHost = String(miJugador.id) === Object.keys(this.gameState.jugadores)[0];
+    const tipoBase = isHost ? 'Base_J1' : 'Base_J2';
+
+    // Encontrar base en el mapa
+    let baseX = -1, baseY = -1;
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        const obj = this.capa_objetos[row][col];
+        if (obj && obj.tipo === tipoBase) {
+          baseX = col;
+          baseY = row;
+          break;
         }
       }
-    } else if (this.accionActual === 'Disparar') {
-      if (!this.selectedBoardTank) {
-        if (this.capa_tanques[y][x] && this.capa_tanques[y][x].isTank) {
-          this.selectedBoardTank = {x, y};
-        }
-      } else {
-        if (this.isHighlight(x, y) === 'shoot' && this.capa_tanques[y][x] && this.capa_tanques[y][x].isTank) {
-          console.log("¡Boom! Tanque atacado en", x, y);
-          this.selectedBoardTank = null;
-          this.onTankActionComplete.emit();
-        } else {
-          this.selectedBoardTank = null;
-        }
-      }
+      if (baseX !== -1) break;
     }
+
+    if (baseX === -1) return false;
+
+    // Rango 4 desde la base
+    return Math.abs(x - baseX) <= 4 && Math.abs(y - baseY) <= 4;
+  }
+
+  esTransitable(x: number, y: number): boolean {
+    const tile = this.capa_suelo[y][x];
+    const obj = this.capa_objetos[y][x];
+    return tile?.tipo !== 'No_Transitable' && (!obj || obj.tipo !== 'No_Transitable');
+  }
+
+  hayTanque(x: number, y: number): boolean {
+    return !!this.gameState?.tanques?.find((t: any) => t.posX === x && t.posY === y);
+  }
+
+  onClickCasilla(x: number, y: number) {
+    this.onCasillaClick.emit({x, y});
   }
 
   @HostListener('wheel', ['$event'])
   onWheel(event: WheelEvent) {
     event.preventDefault();
-    if (event.deltaY < 0) {
-      this.zoomLevel = Math.min(this.zoomLevel + 0.1, 3.0);
-    } else {
-      this.zoomLevel = Math.max(this.zoomLevel - 0.1, 0.5);
-    }
+    if (event.deltaY < 0) this.zoomLevel = Math.min(this.zoomLevel + 0.1, 3.0);
+    else this.zoomLevel = Math.max(this.zoomLevel - 0.1, 0.5);
     this.constrainPan();
   }
 
   onMouseDown(event: MouseEvent) {
-    // Only drag with left click or middle click maybe?
     if (event.button !== 0 && event.button !== 1) return;
     this.isDragging = true;
     this.dragStartX = event.clientX - this.translateX;

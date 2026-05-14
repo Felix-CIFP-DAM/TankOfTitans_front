@@ -8,12 +8,18 @@
                  <div class="tile" [ngStyle]="getTileStyle(capa_suelo[y][x])"></div>
                  <div class="object-tile" *ngIf="capa_objetos[y][x]" [ngStyle]="getObjectStyle(capa_objetos[y][x])"></div>
                  
-                 <!-- Capa 3: Tanques (Unidades) -->
-                 <div class="object-tile" *ngIf="capa_tanques[y][x]" [ngStyle]="getObjectStyle(capa_tanques[y][x])"></div>
+                 <!-- Capa 3: Tanques del GameState -->
+                 <ng-container *ngFor="let t of gameState?.tanques">
+                    <div class="object-tile tank-unit" *ngIf="t.posX === x && t.posY === y" 
+                        [class.rival]="t.propietarioId !== miUsuario?.id"
+                        [ngStyle]="getObjectStyle({sheet: 'miscelaneous-1', x: t.tipo === 'ARTILLERIA' ? 2 : 0, y: 0})">
+                    </div>
+                 </ng-container>
                  
                  <!-- Highlights and Selectors -->
                  <div class="highlight overlay-move" *ngIf="isHighlight(x, y) === 'move'"></div>
                  <div class="highlight overlay-shoot" *ngIf="isHighlight(x, y) === 'shoot'"></div>
+                 <div class="highlight overlay-place" *ngIf="isHighlight(x, y) === 'place'"></div>
                  <div class="highlight overlay-selected" *ngIf="selectedBoardTank?.x === x && selectedBoardTank?.y === y"></div>
              </div>
          </div>

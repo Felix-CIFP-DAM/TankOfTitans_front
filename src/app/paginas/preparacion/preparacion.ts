@@ -40,6 +40,8 @@ export class Preparacion implements OnInit, OnDestroy {
   tanquesDisponibles: Tanque[] = [];
   jugadores: JugadorEstado[] = [];
   peloton = signal<Tanque[]>([]);
+  mapasDisponibles: any[] = [];
+  mapaSeleccionado = signal<any | null>(null);
   cuentaAtras = signal<number | null>(null);
 
   private socketSub?: Subscription;
@@ -83,8 +85,10 @@ export class Preparacion implements OnInit, OnDestroy {
     // Escuchar inicio de partida (envío a selección de tanques)
     this.websocketService.listen('seleccionTanques').subscribe((datos: any) => {
       console.log('[FRONT][Preparacion] 🚀 ¡Partida iniciada! Redirigiendo...', datos);
-      // Navegar al juego (pasar datos por estado o queryParams si es necesario)
-      this.router.navigate(['/juego'], { 
+      // Guardamos el mapa en el localStorage para que el componente partida-mapa lo lea
+      localStorage.setItem('mapa_temp', JSON.stringify(datos.mapa));
+      
+      this.router.navigate(['/partida'], { 
         queryParams: { 
           partidaId: this.id_sala,
           mapaId: datos.mapa.id 
@@ -119,8 +123,10 @@ export class Preparacion implements OnInit, OnDestroy {
       }
     });
 
-    // 2. Cargar estado inicial de la sala (opcional si ya venimos de unirse)
-    // El DataService podría guardar el estado último o pedimos uno nuevo
+    // 2. Cargar mapas si soy el host
+    this.dataService.listarMapas().subscribe((res: any[]) => {
+      this.mapasDisponibles = res;
+    });
   }
 
   actualizarJugadores(partida: any) {
@@ -144,6 +150,13 @@ export class Preparacion implements OnInit, OnDestroy {
       ).filter((t): t is Tanque => !!t);
       
       this.peloton.set(tanquesSincronizados);
+    }
+
+    // Sincronizar mapa seleccionado
+    if (partida.mapaId) {
+      this.mapaSeleccionado.set({ id: partida.mapaId });
+    } else {
+      this.mapaSeleccionado.set(null);
     }
   }
 
@@ -186,5 +199,20 @@ export class Preparacion implements OnInit, OnDestroy {
     const miNick = sessionStorage.getItem('nickname');
     const yo = this.jugadores.find(j => j.nickname === miNick);
     return yo ? yo.listo : false;
+  }
+
+  // Helper para saber si soy el host
+  get soyHost(): boolean {
+    const miNick = sessionStorage.getItem('nickname');
+    const yo = this.jugadores.find(j => j.nickname === miNick);
+    return yo ? yo.esHost : false;
+  }
+
+  seleccionarMapa(mapa: any) {
+    if (!this.soyHost) return;
+    this.websocketService.emit('seleccionarMapa', { 
+      partidaId: this.id_sala, 
+      mapaId: mapa.id 
+    });
   }
 }

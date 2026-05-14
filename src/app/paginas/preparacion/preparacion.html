@@ -108,6 +108,21 @@
                 </div>
             </div>
 
+            <!-- Map Selection (Host Only) or View Selected Map -->
+            <div class="map-selection-sidebar" *ngIf="soyHost || mapaSeleccionado()">
+                <h3 class="sidebar-title">TEATRO DE OPERACIONES</h3>
+                <div class="map-grid" *ngIf="soyHost">
+                    <div *ngFor="let m of mapasDisponibles" class="map-card" 
+                        [class.selected]="mapaSeleccionado()?.id === m.id" (click)='seleccionarMapa(m)'>
+                        <span class="map-name">{{m.nombre}}</span>
+                    </div>
+                </div>
+                <div class="selected-map-info" *ngIf="!soyHost && mapaSeleccionado()">
+                    <span class="map-label">MAPA:</span>
+                    <span class="map-value">{{mapaSeleccionado()?.nombre || 'Cargando...'}}</span>
+                </div>
+            </div>
+
             <div class="actions-area">
                 <button class="ready-toggle btn-poly" [disabled]="peloton().length !== 3"
                     [class.btn-locked]="peloton().length !== 3" (click)="toggleListo()">
