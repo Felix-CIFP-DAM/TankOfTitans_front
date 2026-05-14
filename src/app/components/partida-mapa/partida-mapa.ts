@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, HostListener, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, HostListener, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './partida-mapa.html',
   styleUrl: './partida-mapa.css',
 })
-export class PartidaMapa implements OnInit, AfterViewInit {
+export class PartidaMapa implements OnInit, AfterViewInit, OnChanges {
   @Input() accionActual: 'Mover' | 'Disparar' | 'Poner' | null = null;
   @Input() tanqueEnMano: any = null;
   @Input() gameState: any = null;
@@ -47,11 +47,31 @@ export class PartidaMapa implements OnInit, AfterViewInit {
 
   constructor(private el: ElementRef) {}
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['gameState'] && this.gameState && this.gameState.mapa) {
+      this.cargarMapaDesdeEstado();
+    }
+  }
+
   ngOnInit() {
     this.cargarMapaDesdeStorage();
   }
 
+  cargarMapaDesdeEstado() {
+    const mapa = this.gameState.mapa;
+    if (mapa && mapa.data) {
+      console.log('[FRONT][PartidaMapa] 🗺️ Cargando mapa desde estado:', mapa.nombre);
+      this.capa_suelo = mapa.data.suelo || [];
+      this.capa_objetos = mapa.data.objetos || [];
+      if (this.capa_suelo.length > 0) {
+        this.rows = this.capa_suelo.length;
+        this.cols = this.capa_suelo[0].length;
+      }
+    }
+  }
+
   cargarMapaDesdeStorage() {
+    if (this.capa_suelo.length > 0) return; // Ya cargado desde estado
     const saved = localStorage.getItem('mapa_temp');
     if (saved) {
       try {

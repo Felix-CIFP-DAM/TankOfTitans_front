@@ -178,6 +178,19 @@ export class DataService {
     return respuesta.asObservable();
   }
 
+  getEstadoPartida(partidaId: number): Observable<any> {
+    const respuesta = new Subject<any>();
+    console.log('[FRONT][DataService] 📤 Emitiendo obtenerEstadoSala:', partidaId);
+    this.socketService.emit('obtenerEstadoSala', { partidaId });
+
+    this.socketService.listen('estadoSala').pipe(first()).subscribe((res: any) => {
+      console.log('[FRONT][DataService] 📥 estadoSala recibido:', res);
+      respuesta.next(res);
+    });
+
+    return respuesta.asObservable();
+  }
+
 
   // ===================== PERFIL =====================
 

@@ -3,12 +3,11 @@
         [accionActual]="accionActual" 
         [miUsuario]="miUsuario"
         [rivales]="rivales"
-        [tanquesNoColocados]="misTanquesDisponibles"
+        [tanquesNoColocados]="misTanquesNoColocados"
         (actionSelected)="onActionSelected($event)"
         (tankSelected)="onTankSelected($event)">
-    </app-partida-hud>
-
-    <div class="main-map-area">
+        
+        <!-- El mapa se inyecta en el hud-center a través de ng-content -->
         <app-partida-mapa 
             [accionActual]="accionActual" 
             [tanqueEnMano]="tanqueEnMano"
@@ -16,5 +15,6 @@
             [miUsuario]="miUsuario"
             (onCasillaClick)="onMapaClick($event)">
         </app-partida-mapa>
-    </div>
+
+    </app-partida-hud>
 </div>

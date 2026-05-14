@@ -5,7 +5,7 @@ import { PartidaHud } from '../../components/partida-hud/partida-hud';
 import { PartidaMapa } from '../../components/partida-mapa/partida-mapa';
 import { WebsocketService } from '../../services/websocket-service';
 import { DataService } from '../../services/data-service';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-partida',
@@ -20,7 +20,12 @@ export class Partida implements OnInit, OnDestroy {
   tanqueEnMano: any = null; 
 
   gameState = signal<any>(null);
-  misTanquesDisponibles: any[] = [];
+  
+  // Lista completa de los 3 tanques elegidos en preparación
+  misTanquesSeleccionados: any[] = [];
+  // Lista filtrada de tanques que aún no están en el mapa
+  misTanquesNoColocados: any[] = [];
+  
   rivales: any[] = [];
   miUsuario: any = null;
 
@@ -35,19 +40,34 @@ export class Partida implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.partidaId = params['partidaId'];
-      console.log('[FRONT][Partida] 🆔 Partida ID:', this.partidaId);
-      this.conectarSocket();
+      this.cargarDatosYConectar();
     });
+  }
 
-    // Cargar mis tanques reales para tener imágenes y nombres
-    this.dataService.obtenerTanques().subscribe(tanques => {
-      this.misTanquesDisponibles = tanques.map(t => ({
-        id: t.id,
-        nombre: t.nombre,
-        tipo: t.tipo,
-        vida: 100,
-        sheet: 'miscelaneous-1' 
-      }));
+  cargarDatosYConectar() {
+    forkJoin({
+      partidaApi: this.dataService.getEstadoPartida(Number(this.partidaId)),
+      todosLosTanques: this.dataService.obtenerTanques()
+    }).subscribe(({ partidaApi, todosLosTanques }) => {
+      const miNick = sessionStorage.getItem('nickname');
+      const miJugadorApi = partidaApi.jugadoresList.find((j: any) => j.nickname === miNick);
+      
+      if (miJugadorApi) {
+        const idsElegidos = miJugadorApi.tanquesIds || [];
+        this.misTanquesSeleccionados = todosLosTanques
+          .filter(t => idsElegidos.includes(t.id))
+          .map(t => ({
+            id: t.id,
+            nombre: t.nombre,
+            tipo: t.tipo,
+            vida: 100,
+            sheet: 'miscelaneous-1'
+          }));
+        
+        this.misTanquesNoColocados = [...this.misTanquesSeleccionados];
+      }
+
+      this.conectarSocket();
     });
   }
 
@@ -57,29 +77,36 @@ export class Partida implements OnInit, OnDestroy {
 
   conectarSocket() {
     this.websocketService.listen('partidaIniciada').subscribe((res: any) => {
-      console.log('[FRONT][Partida] 🎮 Partida Iniciada!', res);
-      this.gameState.set(res.estado);
-      this.actualizarHUD(res.estado);
+      this.actualizarEstado(res.estado);
     });
 
     this.websocketService.listen('tanqueColocado').subscribe((res: any) => {
-      console.log('[FRONT][Partida] 📍 Tanque colocado:', res);
-      this.gameState.set(res.estado);
-      this.actualizarHUD(res.estado);
+      this.actualizarEstado(res.estado);
     });
 
     this.websocketService.listen('tanqueMovido').subscribe((res: any) => {
-      this.gameState.set(res.estado);
-      this.actualizarHUD(res.estado);
+      this.actualizarEstado(res.estado);
+    });
+    
+    this.websocketService.emit('obtenerEstadoPartida', { partidaId: this.partidaId });
+    this.websocketService.listen('estadoPartida').subscribe((res: any) => {
+      if (res.estado) this.actualizarEstado(res.estado);
     });
   }
 
-  actualizarHUD(estado: any) {
+  actualizarEstado(estado: any) {
+    this.gameState.set(estado);
     const miNick = sessionStorage.getItem('nickname');
     const jugadores = Object.values(estado.jugadores);
     
     this.miUsuario = jugadores.find((j: any) => j.nickname === miNick);
     this.rivales = jugadores.filter((j: any) => j.nickname !== miNick);
+
+    // Filtrar tanques no colocados a partir de la lista base
+    if (this.miUsuario?.tanquesColocados) {
+        const idsColocados = this.miUsuario.tanquesColocados.map((tc: any) => tc.id);
+        this.misTanquesNoColocados = this.misTanquesSeleccionados.filter(t => !idsColocados.includes(t.id));
+    }
   }
 
   onActionSelected(accion: 'Mover' | 'Disparar' | 'Poner' | null) {
@@ -93,7 +120,6 @@ export class Partida implements OnInit, OnDestroy {
 
   onTankSelected(tanque: any) {
     this.tanqueEnMano = tanque;
-    console.log('[FRONT][Partida] 🛡️ Tanque en mano:', tanque.nombre);
   }
 
   onMapaClick(pos: {x: number, y: number}) {
