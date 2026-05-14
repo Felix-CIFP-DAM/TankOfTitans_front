@@ -187,15 +187,10 @@ export class PartidaMapa implements OnInit, AfterViewInit, OnChanges {
     if (!this.gameState || !this.gameState.jugadores) return false;
     if (!this.esTransitable(x, y) || this.hayTanque(x, y)) return false;
     
-    const miNick = sessionStorage.getItem('nickname');
-    if (!miNick) return false;
-    
-    const jugadores = Object.values(this.gameState.jugadores);
-    const miJugador: any = jugadores.find((j: any) => j.nickname === miNick);
-    if (!miJugador) return false;
+    if (!this.miUsuario) return false;
 
     const hostId = Object.keys(this.gameState.jugadores)[0];
-    const isHost = String(miJugador.id) === String(hostId);
+    const isHost = String(this.miUsuario.id) === String(hostId);
     const tipoBase = isHost ? 'Base_J1' : 'Base_J2';
 
     let baseX = -1, baseY = -1;
@@ -258,5 +253,23 @@ export class PartidaMapa implements OnInit, AfterViewInit, OnChanges {
   @HostListener('window:mouseup')
   onMouseUp() {
     this.isDragging = false;
+  }
+
+  get baseInfo() {
+    if (!this.gameState || !this.gameState.jugadores) return { j1: '', j2: '' };
+    const ids = Object.keys(this.gameState.jugadores);
+    return {
+      j1: this.gameState.jugadores[ids[0]]?.nickname || 'Host',
+      j2: ids.length > 1 ? (this.gameState.jugadores[ids[1]]?.nickname || 'Rival') : 'Rival'
+    };
+  }
+
+  isMyBase(tipoBase: string): boolean {
+    if (!this.gameState || !this.gameState.jugadores || !this.miUsuario) return false;
+    const hostId = Object.keys(this.gameState.jugadores)[0];
+    const amIHost = String(this.miUsuario.id) === String(hostId);
+    if (amIHost && tipoBase === 'Base_J1') return true;
+    if (!amIHost && tipoBase === 'Base_J2') return true;
+    return false;
   }
 }

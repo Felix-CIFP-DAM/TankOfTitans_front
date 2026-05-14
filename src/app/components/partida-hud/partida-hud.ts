@@ -13,12 +13,14 @@ export class PartidaHud {
   @Input() miUsuario: any = null;
   @Input() rivales: any[] = [];
   @Input() tanquesNoColocados: any[] = [];
+  @Input() tanqueEnMano: any = null;
+  @Input() gameState: any = null;
+  
+  @Input() timerTurno = '00:30';
+  @Input() timerTotal = '15:00';
 
   @Output() actionSelected = new EventEmitter<'Mover' | 'Disparar' | 'Poner'>();
   @Output() tankSelected = new EventEmitter<any>();
-
-  timerTurno = '00:30';
-  timerTotal = '15:00';
   
   get puntosAccion() {
     return this.miUsuario?.pa || 0;

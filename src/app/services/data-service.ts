@@ -186,6 +186,7 @@ export class DataService {
     this.socketService.listen('estadoSala').pipe(first()).subscribe((res: any) => {
       console.log('[FRONT][DataService] 📥 estadoSala recibido:', res);
       respuesta.next(res);
+      respuesta.complete();
     });
 
     return respuesta.asObservable();
@@ -291,6 +292,7 @@ export class DataService {
     this.socketService.listen('tanques_usuario').pipe(first()).subscribe((res: any) => {
       console.log('[FRONT][DataService] 📥 tanques_usuario recibido ->', Array.isArray(res) ? `${res.length} tanques` : res);
       respuesta.next(res);
+      respuesta.complete();
     });
 
     return respuesta.asObservable();

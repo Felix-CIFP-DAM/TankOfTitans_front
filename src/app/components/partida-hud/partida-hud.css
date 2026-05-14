@@ -158,21 +158,50 @@
     100% { box-shadow: 0 0 10px var(--glow-primary), inset 0 0 10px var(--glow-primary); border-color: var(--military-gold); }
 }
 
-.avatar-circle {
-    width: 70px;
-    height: 70px;
+.player-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid var(--military-gold);
+    border-radius: 4px;
+    min-width: 250px;
+}
+
+.avatar-container {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    border: 3px solid var(--military-gold);
-    background: var(--camo-dark-green);
+    border: 2px solid var(--military-gold);
+    overflow: hidden;
+    background: var(--camo-black);
+    box-shadow: 0 0 10px var(--glow-primary);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.8rem;
-    color: var(--text-primary);
-    margin-bottom: 12px;
     animation: radarSweep 3s infinite;
-    text-shadow: 0 0 5px var(--text-primary);
 }
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tank-icon img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.player-info-box {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.text-right { text-align: right; }
 
 .player-name {
     color: var(--text-primary);
@@ -197,6 +226,20 @@
     letter-spacing: 1px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5), inset 0 0 5px var(--glow-primary);
     text-shadow: 0 0 5px var(--glow-primary);
+}
+
+.health-points {
+    margin-top: 5px;
+    background: rgba(85, 255, 85, 0.1);
+    color: #55ff55;
+    border: 1px solid #55ff55;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5), inset 0 0 5px rgba(85, 255, 85, 0.5);
+    text-shadow: 0 0 5px rgba(85, 255, 85, 0.5);
 }
 
 .tank-list {
@@ -361,3 +404,20 @@
 
 .tank-name { color: var(--text-primary); font-size: 0.9rem; font-weight: bold; text-transform: uppercase; }
 .tank-hp { color: var(--text-muted); font-size: 0.8rem; }
+
+.btn-cost {
+    font-size: 0.8rem;
+    color: var(--military-gold);
+    margin-left: 5px;
+    opacity: 0.8;
+}
+
+.drawer-item.selected {
+    background: var(--military-gold);
+    color: var(--camo-black);
+    box-shadow: 0 0 15px var(--glow-primary);
+}
+
+.drawer-item.selected .tank-name, .drawer-item.selected .tank-hp {
+    color: var(--camo-black);
+}
