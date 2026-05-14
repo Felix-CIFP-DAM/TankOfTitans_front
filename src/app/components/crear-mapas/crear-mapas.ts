@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AutotilingService } from '../../services/autotiling.service';
 import { WebsocketService } from '../../services/websocket-service';
@@ -10,14 +10,14 @@ export interface TileInfo {
   x: number;
   y: number;
   sheet: string;
-  tipo: 'Transitable' | 'No_Transitable';
+  tipo: 'Transitable' | 'No_Transitable' | 'Base_J1' | 'Base_J2';
 }
 
 export interface ObjectInfo {
   x: number;
   y: number;
   sheet: string;
-  tipo: 'Transitable' | 'No_Transitable';
+  tipo: 'Transitable' | 'No_Transitable' | 'Base_J1' | 'Base_J2';
 }
 
 export interface PaletteDef {
@@ -40,18 +40,41 @@ export class CrearMapas implements OnInit, OnDestroy {
   capa_suelo: TileInfo[][] = [];
   capa_objetos: (ObjectInfo | null)[][] = [];
 
-  cols = 15;
-  rows = 10;
+  cols = 20;
+  rows = 15;
 
-  colLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O'];
-  rowLabels = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
+  get colLabels(): string[] {
+    const labels = [];
+    for (let i = 0; i < this.cols; i++) {
+      let label = '';
+      let n = i;
+      while (n >= 0) {
+        label = String.fromCharCode((n % 26) + 65) + label;
+        n = Math.floor(n / 26) - 1;
+      }
+      labels.push(label);
+    }
+    return labels;
+  }
+
+  get rowLabels(): string[] {
+    return Array.from({ length: this.rows }, (_, i) => (i + 1).toString());
+  }
 
   nombreMapa: string = 'Batalla en el Ebro';
 
   // Selection Logic
   selectedSprite: { x: number, y: number, sheet: string } = { x: 0, y: 0, sheet: 'suelos-1' };
-  selectedTipo: 'Transitable' | 'No_Transitable' = 'Transitable';
+  selectedTipo: 'Transitable' | 'No_Transitable' | 'Base_J1' | 'Base_J2' = 'Transitable';
   isMouseDown = false;
+
+  // Zoom & Pan state
+  zoomLevel = 1.0;
+  isDragging = false;
+  dragStartX = 0;
+  dragStartY = 0;
+  translateX = 0;
+  translateY = 0;
 
   // Palettes
   palettes: PaletteDef[] = [
@@ -91,6 +114,16 @@ export class CrearMapas implements OnInit, OnDestroy {
         this.nombreMapa = mapData.nombreMapa || this.nombreMapa;
       }
     });
+
+    this.websocketService.listen('mapa:guardado').subscribe((res: any) => {
+      if (res.success) {
+        console.log('✅ Mapa guardado con éxito:', res.mapa);
+        alert('Mapa guardado correctamente');
+      } else {
+        console.error('❌ Error al guardar:', res.mensaje);
+        alert('Error al guardar el mapa: ' + res.mensaje);
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -107,9 +140,21 @@ export class CrearMapas implements OnInit, OnDestroy {
     );
   }
 
-  onMouseDown(x: number, y: number) {
-    this.isMouseDown = true;
-    this.paint(x, y);
+  resizeGrid(newCols: number, newRows: number) {
+    this.cols = newCols;
+    this.rows = newRows;
+    this.initGrid();
+  }
+
+  onMouseDown(x: number, y: number, event: MouseEvent) {
+    if (event.button === 0 && !event.shiftKey) {
+      this.isMouseDown = true;
+      this.paint(x, y);
+    } else if (event.button === 1 || (event.button === 0 && event.shiftKey)) {
+      this.isDragging = true;
+      this.dragStartX = event.clientX - this.translateX;
+      this.dragStartY = event.clientY - this.translateY;
+    }
   }
 
   onMouseEnter(x: number, y: number) {
@@ -118,11 +163,41 @@ export class CrearMapas implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('window:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.isDragging) {
+      this.translateX = event.clientX - this.dragStartX;
+      this.translateY = event.clientY - this.dragStartY;
+    }
+  }
+
+  @HostListener('window:mouseup')
   onMouseUp() {
     this.isMouseDown = false;
+    this.isDragging = false;
+  }
+
+  @HostListener('wheel', ['$event'])
+  onWheel(event: WheelEvent) {
+    // Solo hacer zoom si el ratón está sobre el viewport del mapa
+    const target = event.target as HTMLElement;
+    if (target.closest('.grid-viewport')) {
+      event.preventDefault();
+      const zoomSpeed = 0.1;
+      if (event.deltaY < 0) {
+        this.zoomLevel = Math.min(this.zoomLevel + zoomSpeed, 3.0);
+      } else {
+        this.zoomLevel = Math.max(this.zoomLevel - zoomSpeed, 0.2);
+      }
+    }
   }
 
   paint(x: number, y: number) {
+    if (this.selectedTipo === 'Base_J1' || this.selectedTipo === 'Base_J2') {
+      this.paintBase(x, y, this.selectedTipo);
+      return;
+    }
+
     const palette = this.palettes.find(p => p.id === this.selectedSprite.sheet);
     if (!palette) return;
 
@@ -138,8 +213,54 @@ export class CrearMapas implements OnInit, OnDestroy {
     }
   }
 
+  paintBase(x: number, y: number, tipo: 'Base_J1' | 'Base_J2') {
+    // Validar que quepa un 2x2
+    if (x + 1 >= this.cols || y + 1 >= this.rows) return;
+
+    // Eliminar base previa del mismo jugador si existe
+    this.removeBase(tipo);
+
+    // Pintar 2x2 en capa de objetos
+    // Por ahora usamos un sprite genérico (miscelaneous-1, x:8, y:0 es una caja)
+    // El usuario podrá cambiar el sprite después si quiere, pero el TIPO será lo importante
+    const baseSprite = { sheet: 'miscelaneous-1', x: 8, y: 0 }; 
+
+    for (let dy = 0; dy < 2; dy++) {
+      for (let dx = 0; dx < 2; dx++) {
+        this.capa_objetos[y + dy][x + dx] = { 
+          ...baseSprite, 
+          x: baseSprite.x + dx, 
+          y: baseSprite.y + dy, 
+          tipo 
+        };
+      }
+    }
+  }
+
+  removeBase(tipo: string) {
+    for (let y = 0; y < this.rows; y++) {
+      for (let x = 0; x < this.cols; x++) {
+        const obj = this.capa_objetos[y][x];
+        if (obj && obj.tipo === tipo) {
+          this.capa_objetos[y][x] = null;
+        }
+      }
+    }
+  }
+
   selectFromPalette(x: number, y: number, sheet: string) {
     this.selectedSprite = { x, y, sheet };
+
+    // Smart default: If it's a wall or water, set to No_Transitable
+    if (sheet.includes('paredes') || sheet.includes('afueras')) {
+      this.selectedTipo = 'No_Transitable';
+    } else if (sheet.includes('suelos') || sheet.includes('techos')) {
+      this.selectedTipo = 'Transitable';
+    }
+  }
+
+  onPaletteChange(newId: string) {
+    this.activePaletteId = newId;
   }
 
   clearObject(x: number, y: number) {
@@ -150,8 +271,8 @@ export class CrearMapas implements OnInit, OnDestroy {
     const tile = this.capa_suelo[y][x];
     const obj = this.capa_objetos[y][x];
 
-    if (obj && obj.tipo === 'No_Transitable') return false; 
-    if (tile.tipo === 'No_Transitable') return false; 
+    if (obj && obj.tipo === 'No_Transitable') return false;
+    if (tile.tipo === 'No_Transitable') return false;
 
     return true;
   }
@@ -159,6 +280,8 @@ export class CrearMapas implements OnInit, OnDestroy {
   saveMap() {
     const mapData = {
       nombreMapa: this.nombreMapa,
+      ancho: this.cols,
+      alto: this.rows,
       data: {
         suelo: this.capa_suelo,
         objetos: this.capa_objetos
@@ -189,7 +312,7 @@ export class CrearMapas implements OnInit, OnDestroy {
       'background-position': `-${obj.x * 48}px -${obj.y * 48}px`,
       'width': '48px',
       'height': '48px',
-      'background-size': 'auto' 
+      'background-size': 'auto'
     };
   }
 

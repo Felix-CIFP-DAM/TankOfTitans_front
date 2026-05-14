@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
-import { io, Socket} from 'socket.io-client';
-import { Observable, Subscriber} from 'rxjs';
+import { io, Socket } from 'socket.io-client';
+import { Observable, Subscriber } from 'rxjs';
 import { environment } from '../environments/environment';
 
 @Injectable({
@@ -11,30 +11,37 @@ export class WebsocketService {
   private socket: Socket;
 
   constructor(private ngZone: NgZone) {
-    this.socket = io(environment.socketUrl, {
+    const token = sessionStorage.getItem('token');
+    this.socket = io(environment.socketUrlLocal, {
       transports: ['websocket'],
-      autoConnect: false
+      autoConnect: true,
+      auth: { token } // Enviamos el token en la conexión inicial
+    });
+
+    this.socket.on('connect', () => {
+      console.log(`✅ Conectado al servidor de lógica (Node.js) | ID: ${this.socket.id}`);
     });
   }
+
 
   connect() {
     this.socket.connect();
-
-    this.socket.on('connect', () => {
-      console.log('Conectado al servidor de lógica (Node.js)');
-    });
-
-
-    this.socket.on('disconnect', () => {
-      console.warn('Desconectado del servidor de sockets');
-    });
   }
 
+  setToken(token: string) {
+    this.socket.auth = { token };
+    this.socket.disconnect().connect();
+    console.log('[FRONT][WebsocketService] 🔑 Token actualizado y socket reconectado');
+  }
+
+
   emit(evento: string, datos: any) {
+    console.log(`[FRONT][WebsocketService] 📡 Emitiendo '${evento}' | Conectado: ${this.socket.connected} | ID: ${this.socket.id}`);
     this.socket.emit(evento, datos);
   }
 
-  listen(evento: string): Observable<any>{
+
+  listen(evento: string): Observable<any> {
     return new Observable((subscriber) => {
       const handler = (datos: any) => {
         this.ngZone.run(() => {
@@ -51,7 +58,7 @@ export class WebsocketService {
   }
 
   disconnect() {
-    if(this.socket) {
+    if (this.socket) {
       this.socket.disconnect();
     }
   }

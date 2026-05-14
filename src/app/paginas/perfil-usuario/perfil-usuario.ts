@@ -6,9 +6,11 @@ import { Perfil } from '../../modelos/Perfil';
 
 @Component({
   selector: 'app-perfil-usuario',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './perfil-usuario.html',
   styleUrl: './perfil-usuario.css',
+
 })
 export class PerfilUsuario implements OnInit {
 
@@ -18,64 +20,68 @@ export class PerfilUsuario implements OnInit {
   perfil: Perfil = {
     nombre: '',
     nickname: '',
-    icono: 'recluta.png'
+    icono: 0
   };
+
 
   contrasena: string = '';
   cargando: boolean = false;
   error: string = '';
 
-  avatares: string[] = [
-    'apoyo-aereo-de-blindados.png', 'artillera.png', 'as-volador.png', 'brigada-espartana.png',
-    'chapa-de-identidad.png', 'comandante-fem.png', 'comando-artico.png', 'comando-camuflado.png',
-    'comando-central.png', 'combafio.png', 'conductor.png', 'craneo-de-batalla.png',
-    'cuerpo-reparador.png', 'defensa-de-bunkers.png', 'despliegue-global.png', 'division-de-asalto.png',
-    'emblema-basico-de-tanquista.png', 'estratega-de-combate.png', 'estratega.png', 'fuerzas-imperiales.png',
-    'guardia-real.png', 'inteligencia-estrategica.png', 'inviernista.png', 'logistica-pesada.png',
-    'maestro-artillero.png', 'maestro-de-tanques.png', 'medallista.png', 'medico-de-campo.png',
-    'oficial-aliado.png', 'ops-anfibias.png', 'piloto-ligero.png', 'piloto-toxico.png',
-    'ratas-del-desierto.png', 'recluta.png', 'reparador-avanzado.png', 'retirado-de-guerra.png',
-    'sanitario.png', 'seguridad-maestro-conductor.png', 'servicio-veterano-de-acero.png', 'tnk-master.png',
-    'unidad-defensa-nbq.png', 'unidad-infiltracion.png', 'unidad-lobo-terrestre.png', 'unidad-lobo-volador.png',
-    'veterano.png'
-  ];
+  avatares: any[] = [];
+
 
   constructor(private dataService: DataService) { }
 
-  getIconName(filename: string): string {
-    return filename
-      .replace('.png', '')
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+  getIconName(name: string): string {
+    return name;
   }
+
+  seleccionarAvatar(avatar: any) {
+    console.log('[FRONT][PerfilUsuario] 🔲 Avatar seleccionado:', avatar.nombre, '| ID:', avatar.id);
+    this.perfil.icono = avatar.id;
+  }
+
+
 
   ngOnInit() {
     this.cargarPerfil();
+    this.cargarAvatares();
   }
 
-  cargarPerfil() {
-    this.cargando = true;
-    this.dataService.obtenerPerfil().subscribe({
+  cargarAvatares() {
+    console.log('[FRONT][PerfilUsuario] 📤 Solicitando lista de avatares...');
+    this.dataService.listarAvatares().subscribe({
       next: (res) => {
-        this.perfil = res;
-        this.cargando = false;
+        console.log('[FRONT][PerfilUsuario] 📥 Respuesta de listar_avatares recibida. Tipo:', typeof res, '| Es array:', Array.isArray(res));
+        console.log('[FRONT][PerfilUsuario] Contenido completo del array avatares:', JSON.stringify(res));
+        this.avatares = res;
+        console.log('[FRONT][PerfilUsuario] this.avatares.length =', this.avatares.length);
       },
-      error: () => {
-        this.cargando = false;
-        // Fallback to session storage if socket fails
-        this.perfil.nickname = sessionStorage.getItem('nickname') || '';
-        this.perfil.icono = sessionStorage.getItem('icono') || 'recluta.png';
+      error: (err) => {
+        console.error('[FRONT][PerfilUsuario] ❌ Error al cargar avatares:', err);
       }
     });
   }
 
-  seleccionarAvatar(avatar: string) {
-    this.perfil.icono = avatar;
+
+
+
+  cargarPerfil() {
+    console.log('[FRONT][PerfilUsuario] 💾 Cargando perfil desde sessionStorage');
+    this.perfil.nickname = sessionStorage.getItem('nickname') || '';
+    this.perfil.nombre   = sessionStorage.getItem('nombre') || '';
+    this.perfil.icono    = Number(sessionStorage.getItem('icono_id')) || 0;
+    console.log('[FRONT][PerfilUsuario] ✅ Perfil cargado:', { nombre: this.perfil.nombre, nickname: this.perfil.nickname, icono: this.perfil.icono });
   }
 
+
+
   guardar() {
-    if (!this.perfil.nickname.trim()) {
+    console.log('[FRONT][PerfilUsuario] 💾 Intentando guardar perfil. Datos actuales:', this.perfil);
+    
+    if (!this.perfil.nickname || !this.perfil.nickname.trim()) {
+      console.warn('[FRONT][PerfilUsuario] ⚠️ Error: El nickname está vacío');
       this.error = 'El nickname es obligatorio';
       return;
     }
@@ -88,22 +94,32 @@ export class PerfilUsuario implements OnInit {
       nickname: this.perfil.nickname,
       icono: this.perfil.icono
     };
-    if (this.contrasena.trim()) {
-      datos.contrasena = this.contrasena;
+    
+    if (this.contrasena && this.contrasena.trim()) {
+      datos.password = this.contrasena;
     }
 
+
+    console.log('[FRONT][PerfilUsuario] 📤 Llamando a dataService.actualizarPerfil con:', datos);
+    
     this.dataService.actualizarPerfil(datos).subscribe({
       next: (res) => {
+        console.log('[FRONT][PerfilUsuario] ✅ Éxito al actualizar:', res);
         this.cargando = false;
+        // Actualizamos iconoImagen con la respuesta del servidor
+        if (res.iconoImagen) this.perfil.iconoImagen = res.iconoImagen;
         this.perfilActualizado.emit(this.perfil);
         this.cerrar.emit();
       },
+
       error: (err) => {
+        console.error('[FRONT][PerfilUsuario] ❌ Error en el componente:', err);
         this.cargando = false;
         this.error = err || 'Error al actualizar el perfil';
       }
     });
   }
+
 
   onCerrar() {
     this.cerrar.emit();

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
     {
@@ -67,6 +68,7 @@ export const routes: Routes = [
     },
     {
         path: 'panelAdmin',
+        canActivate: [adminGuard],
         loadComponent: () =>
             import('./paginas/panel-admin/panel-admin')
                 .then(m => m.PanelAdmin),
@@ -88,6 +90,12 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('./components/crear-usuario/crear-usuario')
                         .then(m => m.CrearUsuario)
+            },
+            {
+                path: 'avatares',
+                loadComponent: () =>
+                    import('./paginas/panel-admin/crear-avatar/crear-avatar')
+                        .then(m => m.CrearAvatarComponent)
             }
         ]
     },

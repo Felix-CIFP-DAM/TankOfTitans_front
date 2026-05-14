@@ -1,11 +1,14 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { DataService } from '../../services/data-service';
+import { WebsocketService } from '../../services/websocket-service';
+import { Subscription } from 'rxjs';
 
 interface Tanque {
   id: number;
   nombre: string;
-  tipo: 'ligero' | 'mediano' | 'pesado';
+  tipo: string;
   imagen_icono: string;
   imagen_full: string;
   stats: {
@@ -20,6 +23,7 @@ interface JugadorEstado {
   avatar: string;
   listo: boolean;
   esHost: boolean;
+  tanquesIds: number[];
 }
 
 @Component({
@@ -29,66 +33,186 @@ interface JugadorEstado {
   templateUrl: './preparacion.html',
   styleUrl: './preparacion.css'
 })
-export class Preparacion implements OnInit {
+export class Preparacion implements OnInit, OnDestroy {
 
   protected id_sala!: string;
 
-  // Lista de tanques disponibles (Mock data)
-  tanquesDisponibles: Tanque[] = [
-    { id: 1, nombre: 'T-34', tipo: 'ligero', imagen_icono: 'vehiculos/t-34.png', imagen_full: '', stats: { ataque: 40, defensa: 30, velocidad: 90 } },
-    { id: 2, nombre: 'KV-1', tipo: 'ligero', imagen_icono: 'vehiculos/KV-1.png', imagen_full: '', stats: { ataque: 35, defensa: 25, velocidad: 95 } },
-    { id: 3, nombre: 'Bradley-VCI', tipo: 'mediano', imagen_icono: 'vehiculos/bradley-vci.png', imagen_full: 'vehiculos/bradley-vci-new.png', stats: { ataque: 65, defensa: 60, velocidad: 60 } },
-    { id: 4, nombre: 'Paladin-AAPS', tipo: 'mediano', imagen_icono: 'vehiculos/paladin-aaps.png', imagen_full: '', stats: { ataque: 60, defensa: 70, velocidad: 50 } },
-    { id: 5, nombre: 'T-72', tipo: 'pesado', imagen_icono: 'vehiculos/T-72.png', imagen_full: '', stats: { ataque: 90, defensa: 95, velocidad: 20 } },
-    { id: 6, nombre: 'Stugg-III', tipo: 'pesado', imagen_icono: 'vehiculos/stugg-III.png', imagen_full: '', stats: { ataque: 85, defensa: 90, velocidad: 25 } },
-    { id: 7, nombre: 'Churchill', tipo: 'ligero', imagen_icono: 'vehiculos/churchill.png', imagen_full: '', stats: { ataque: 45, defensa: 20, velocidad: 100 } },
-    { id: 8, nombre: 'Humvee-Tactico', tipo: 'mediano', imagen_icono: 'vehiculos/humvee-tactico.png', imagen_full: '', stats: { ataque: 70, defensa: 55, velocidad: 65 } },
-  ];
-
-  // Estado de la sala (Mock data)
-  jugadores: JugadorEstado[] = [
-    { nickname: 'Jhonatah', avatar: 'perfiles/unidad-lobo-volador.png', listo: false, esHost: true },
-    { nickname: 'Player_2', avatar: 'perfiles/medallista.png', listo: false, esHost: false },
-    { nickname: 'TankMaster', avatar: 'perfiles/brigada-espartana.png', listo: true, esHost: false },
-    { nickname: 'Ghost_Ops', avatar: 'perfiles/division-de-asalto.png', listo: false, esHost: false },
-  ];
-
-  // Pelotón seleccionado (Max 5)
+  tanquesDisponibles: Tanque[] = [];
+  jugadores: JugadorEstado[] = [];
   peloton = signal<Tanque[]>([]);
+  mapasDisponibles: any[] = [];
+  mapaSeleccionado = signal<any | null>(null);
+  cuentaAtras = signal<number | null>(null);
 
-  constructor(private router: Router) { }
+  private socketSub?: Subscription;
+  private ultimaPartidaRecibida: any = null;
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private dataService: DataService,
+    private websocketService: WebsocketService
+  ) { }
 
   ngOnInit(): void {
-    // Aquí se conectaría al socket en el futuro para recibir el estado de la sala
-    this.id_sala = "8493042";
+    this.route.queryParams.subscribe(params => {
+      this.id_sala = params['id'];
+      console.log('[FRONT][Preparacion] 🆔 ID de sala detectado:', this.id_sala);
+      this.cargarDatos();
+      // Pedir estado actual al cargar (dentro del subscribe para asegurar que tenemos el id_sala)
+      if (this.id_sala) {
+        this.websocketService.emit('obtenerEstadoSala', { partidaId: this.id_sala });
+      }
+    });
+
+    // Escuchar cambios en la sala
+    this.socketSub = this.websocketService.listen('estadoSala').subscribe((partida: any) => {
+      console.log('[FRONT][Preparacion] 📥 estadoSala recibido:', partida);
+      this.actualizarJugadores(partida);
+    });
+
+    // Escuchar si alguien se une
+    this.websocketService.listen('jugadorUnido').subscribe((partida: any) => {
+      console.log('[FRONT][Preparacion] 📥 jugadorUnido recibido:', partida);
+      this.actualizarJugadores(partida);
+    });
+
+    // Escuchar cuenta atrás
+    this.websocketService.listen('cuentaAtras').subscribe((count: number) => {
+      this.cuentaAtras.set(count);
+    });
+
+    // Escuchar inicio de partida (envío a selección de tanques)
+    this.websocketService.listen('seleccionTanques').subscribe((datos: any) => {
+      console.log('[FRONT][Preparacion] 🚀 ¡Partida iniciada! Redirigiendo...', datos);
+      // Guardamos el mapa en el localStorage para que el componente partida-mapa lo lea
+      localStorage.setItem('mapa_temp', JSON.stringify(datos.mapa));
+      
+      this.router.navigate(['/partida'], { 
+        queryParams: { 
+          partidaId: this.id_sala,
+          mapaId: datos.mapa.id 
+        } 
+      });
+    });
   }
 
-  get ligeros() { return this.tanquesDisponibles.filter(t => t.tipo === 'ligero'); }
-  get medianos() { return this.tanquesDisponibles.filter(t => t.tipo === 'mediano'); }
-  get pesados() { return this.tanquesDisponibles.filter(t => t.tipo === 'pesado'); }
+  ngOnDestroy(): void {
+    this.socketSub?.unsubscribe();
+  }
+
+  cargarDatos() {
+    // 1. Cargar tanques del usuario
+    this.dataService.obtenerTanques().subscribe((res: any[]) => {
+      this.tanquesDisponibles = res.map(t => ({
+        id: t.id,
+        nombre: t.nombre,
+        tipo: t.tipo.toLowerCase(),
+        imagen_icono: `/vehiculos/miniaturas/${t.miniatura}`,
+        imagen_full: `/vehiculos/portadas/${t.imagenPortada}`,
+        stats: {
+          ataque: t.ataque,
+          defensa: t.defensa,
+          velocidad: t.rangoMovimiento * 10 // Simplificación para UI
+        }
+      }));
+
+      // Si ya habíamos recibido el estado de la sala pero no teníamos los tanques cargados, sincronizar ahora
+      if (this.ultimaPartidaRecibida) {
+        this.actualizarJugadores(this.ultimaPartidaRecibida);
+      }
+    });
+
+    // 2. Cargar mapas si soy el host
+    this.dataService.listarMapas().subscribe((res: any[]) => {
+      this.mapasDisponibles = res;
+    });
+  }
+
+  actualizarJugadores(partida: any) {
+    if (!partida || !partida.jugadoresList) return;
+    this.ultimaPartidaRecibida = partida;
+
+    this.jugadores = partida.jugadoresList.map((j: any) => ({
+      nickname: j.nickname,
+      avatar: `/perfiles/${j.iconoImagen}`,
+      listo: j.listo,
+      esHost: j.nickname === partida.hostNickname,
+      tanquesIds: j.tanquesIds || []
+    }));
+
+    // Sincronizar mi propio pelotón local con lo que dice el servidor
+    const miNick = sessionStorage.getItem('nickname');
+    const yo = this.jugadores.find(j => j.nickname === miNick);
+    if (yo && yo.tanquesIds) {
+      const tanquesSincronizados = yo.tanquesIds.map(id => 
+        this.tanquesDisponibles.find(t => t.id === id)
+      ).filter((t): t is Tanque => !!t);
+      
+      this.peloton.set(tanquesSincronizados);
+    }
+
+    // Sincronizar mapa seleccionado
+    if (partida.mapaId) {
+      this.mapaSeleccionado.set({ id: partida.mapaId });
+    } else {
+      this.mapaSeleccionado.set(null);
+    }
+  }
+
+  get ligeros() { return this.tanquesDisponibles.filter(t => t.tipo.includes('ligero')); }
+  get medianos() { return this.tanquesDisponibles.filter(t => t.tipo.includes('mediano') || t.tipo.includes('medio')); }
+  get pesados() { return this.tanquesDisponibles.filter(t => t.tipo.includes('pesado')); }
 
   seleccionarTanque(tanque: Tanque) {
-    if (this.peloton().length < 5 && !this.peloton().find(t => t.id === tanque.id)) {
-      this.peloton.update(p => [...p, tanque]);
+    if (this.peloton().length < 3 && !this.peloton().find(t => t.id === tanque.id)) {
+      // Notificar al servidor
+      this.websocketService.emit('seleccionarTanque', { 
+        partidaId: this.id_sala, 
+        tanqueId: tanque.id 
+      });
+      // El servidor responderá con un estadoSala que actualizará el pelotón vía signal
     }
   }
 
   quitarTanque(tanqueId: number) {
-    this.peloton.update(p => p.filter(t => t.id !== tanqueId));
-    // Si quitamos uno, ya no podemos estar listos
-    const yo = this.jugadores.find(j => j.nickname === 'Jhonatah');
-    if (yo) yo.listo = false;
+    // Notificar al servidor
+    this.websocketService.emit('deseleccionarTanque', { 
+      partidaId: this.id_sala, 
+      tanqueId: tanqueId 
+    });
   }
 
   toggleListo() {
-    if (this.peloton().length !== 5) return;
+    if (this.peloton().length !== 3) return;
 
-    // Lógica para cambiar estado propio (simulado)
-    const yo = this.jugadores.find(j => j.nickname === 'Jhonatah');
-    if (yo) yo.listo = !yo.listo;
+    // Llamada al backend para cambiar estado de listo
+    this.websocketService.emit('marcarListo', { partidaId: this.id_sala });
   }
 
   volverAlMenu() {
     this.router.navigate(['/menu']);
+  }
+
+  // Helper para saber si el usuario actual está listo
+  get yoListo(): boolean {
+    const miNick = sessionStorage.getItem('nickname');
+    const yo = this.jugadores.find(j => j.nickname === miNick);
+    return yo ? yo.listo : false;
+  }
+
+  // Helper para saber si soy el host
+  get soyHost(): boolean {
+    const miNick = sessionStorage.getItem('nickname');
+    const yo = this.jugadores.find(j => j.nickname === miNick);
+    return yo ? yo.esHost : false;
+  }
+
+  seleccionarMapa(mapa: any) {
+    if (!this.soyHost) return;
+    this.websocketService.emit('seleccionarMapa', { 
+      partidaId: this.id_sala, 
+      mapaId: mapa.id 
+    });
   }
 }

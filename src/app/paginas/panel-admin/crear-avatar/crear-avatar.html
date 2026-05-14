@@ -1,0 +1,24 @@
+<div class="crear-avatar-container">
+    <div class="header-section">
+        <h1 class="title">RECLUTAMIENTO DE AVATARES</h1>
+        <p class="subtitle">ALTA DE NUEVOS OPERATIVOS EN EL SISTEMA</p>
+    </div>
+
+    <div class="form-card btn-poly">
+        <div class="form-group">
+            <label for="nombre">NOMBRE DEL AVATAR</label>
+            <input type="text" id="nombre" [(ngModel)]="nombre" placeholder="EJ: COMANDANTE_ALPHA" class="admin-input">
+            <small class="hint">La imagen se generará automáticamente como: {{ nombre ? nombre + '.png' : 'nombre.png' }}</small>
+        </div>
+
+        <div class="actions">
+            <button class="btn-poly btn-confirm" (click)="crear()">
+                <i class="fa fa-plus"></i> CONFIRMAR ALTA
+            </button>
+        </div>
+    </div>
+
+    <div class="status-box" *ngIf="mensaje">
+        <p [class.success]="exito" [class.error]="!exito">{{ mensaje }}</p>
+    </div>
+</div>

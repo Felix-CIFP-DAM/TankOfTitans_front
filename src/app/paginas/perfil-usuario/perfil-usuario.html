@@ -21,11 +21,11 @@
           <div class="avatar-grid">
             <div class="avatar-item"
                  *ngFor="let avatar of avatares"
-                 [class.selected]="perfil.icono === avatar"
+                 [class.selected]="perfil.icono === avatar.id"
                  (click)="seleccionarAvatar(avatar)">
-              <img [src]="'perfiles/' + avatar" [alt]="avatar" class="avatar-img">
-              <div class="avatar-tooltip">{{ getIconName(avatar) }}</div>
-              <div class="avatar-overlay" *ngIf="perfil.icono === avatar">
+              <img [src]="'perfiles/' + avatar.imagen" [alt]="avatar.nombre" class="avatar-img">
+              <div class="avatar-tooltip">{{ getIconName(avatar.nombre) }}</div>
+              <div class="avatar-overlay" *ngIf="perfil.icono === avatar.id">
                 <span class="check-icon">✓</span>
               </div>
             </div>

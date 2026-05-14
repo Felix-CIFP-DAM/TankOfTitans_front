@@ -1,14 +1,20 @@
 <div class="partida-container">
     <app-partida-hud 
-        [accionActual]="accionActual"
+        [accionActual]="accionActual" 
+        [miUsuario]="miUsuario"
+        [rivales]="rivales"
+        [tanquesNoColocados]="misTanquesDisponibles"
         (actionSelected)="onActionSelected($event)"
         (tankSelected)="onTankSelected($event)">
-        
+    </app-partida-hud>
+
+    <div class="main-map-area">
         <app-partida-mapa 
             [accionActual]="accionActual" 
             [tanqueEnMano]="tanqueEnMano"
-            (onTankActionComplete)="onActionSelected(null)">
+            [gameState]="gameState()"
+            [miUsuario]="miUsuario"
+            (onCasillaClick)="onMapaClick($event)">
         </app-partida-mapa>
-
-    </app-partida-hud>
+    </div>
 </div>

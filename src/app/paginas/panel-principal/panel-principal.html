@@ -48,7 +48,7 @@
             <span class="btn-text">Opciones</span>
             <span class="btn-arrow">→</span>
         </button>
-        <button class="menu-btn" id="administracion-btn" (click)="irAdministracion()">
+        <button *ngIf="esAdmin" class="menu-btn" id="administracion-btn" (click)="irAdministracion()">
             <span class="btn-icon"><img src="report_icono.png" class="icono-boton" /></span>
             <span class="btn-text">Administracion</span>
             <span class="btn-arrow">→</span>

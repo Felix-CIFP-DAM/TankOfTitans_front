@@ -1,17 +1,16 @@
 <div class="hud-wrapper">
     <!-- Row 1: Barra de turnos -->
     <div class="hud-turn-bar">
-        <div class="turn-queue" *ngIf="jugadores.length > 0">
-            <span *ngFor="let j of jugadores; let last = last">{{ j.nombre }}{{ !last ? ' &rarr; ' : '' }}</span>
+        <div class="turn-queue">
+            <span>{{ rivales[0]?.nickname }} &rarr; {{ miUsuario?.nickname }}</span>
         </div>
-        <div *ngIf="jugadores.length === 0">Barra de turnos si las hay</div>
     </div>
 
     <!-- Row 2: Top Info -->
-    <div class="hud-top-left player-card">
+    <div class="hud-top-left player-card" *ngIf="rivales[0]">
         <div class="avatar-circle">R</div>
-        <div class="player-name">{{ rivalActual.nombre }}</div>
-        <div class="action-points">PA: {{ rivalActual.puntosAccion }}</div>
+        <div class="player-name">{{ rivales[0].nickname }}</div>
+        <div class="action-points">PA: {{ rivales[0].pa || 0 }}</div>
     </div>
     
     <div class="hud-top-center">
@@ -21,7 +20,7 @@
         </div>
         <div class="turn-info">
             <span class="label">Turno actual</span>
-            <div class="turn-current">{{ turnoActual }}</div>
+            <div class="turn-current">1</div>
         </div>
         <div class="timer-box">
             <span class="label">Temporizador total</span>
@@ -29,35 +28,28 @@
         </div>
     </div>
 
-    <div class="hud-top-right player-card">
+    <div class="hud-top-right player-card" *ngIf="miUsuario">
         <div class="avatar-circle">U</div>
-        <div class="player-name">{{ usuarioActual.nombre }}</div>
-        <div class="action-points">PA: {{ usuarioActual.puntosAccion }}</div>
+        <div class="player-name">{{ miUsuario.nickname }} (Tú)</div>
+        <div class="action-points">PA: {{ miUsuario.pa || 0 }}</div>
     </div>
 
     <!-- Row 3: Middle Area -->
     <div class="hud-side-left">
-        <div class="side-title">Tanques con sus puntos de vida</div>
-        <div class="tank-list">
-            <div class="tank-item" *ngFor="let t of rivalActual.tanques">
-                Tanque {{ t.id }} - HP: {{ t.vida }}
-            </div>
-            <div *ngIf="rivalActual.tanques.length === 0" class="tank-item-empty">Sin tanques</div>
+        <div class="side-title">Tanques del Rival</div>
+        <div class="tank-list" *ngIf="rivales[0]">
+            <!-- Tanques del rival vendrán del GameState.tanques -->
         </div>
     </div>
 
     <div class="hud-center">
-        <!-- Mapa se inyecta aquí -->
         <ng-content></ng-content>
     </div>
 
     <div class="hud-side-right">
-        <div class="side-title">Tanques con sus puntos de vida</div>
-        <div class="tank-list">
-            <div class="tank-item" *ngFor="let t of usuarioActual.tanques">
-                Tanque {{ t.id }} - HP: {{ t.vida }}
-            </div>
-            <div *ngIf="usuarioActual.tanques.length === 0" class="tank-item-empty">Sin tanques</div>
+        <div class="side-title">Mis Tanques</div>
+        <div class="tank-list" *ngIf="miUsuario">
+            <!-- Mis tanques del GameState -->
         </div>
     </div>
 
@@ -69,17 +61,18 @@
             <button class="action-btn btn-poly" [class.active]="accionActual === 'Disparar'" (click)="onActionClick('Disparar')">DISPARAR</button>
         </div>
         
-        <!-- Drawer for tanks when placing, positioned absolute above bottom bar -->
+        <!-- Drawer for tanks when placing -->
         <div class="tank-drawer" *ngIf="accionActual === 'Poner'">
-            <div class="drawer-title">Selecciona un tanque para ponerlo en el mapa:</div>
+            <div class="drawer-title">Selecciona un tanque de tu escuadrón:</div>
             <div class="drawer-list">
                 <div class="drawer-item" *ngFor="let t of tanquesNoColocados" (click)="onSelectTank(t)">
                     <div class="tank-icon">T</div>
                     <div class="tank-info">
-                        <span class="tank-name">{{ t.name }}</span>
+                        <span class="tank-name">{{ t.nombre }}</span>
                         <span class="tank-hp">HP: {{ t.vida }}</span>
                     </div>
                 </div>
+                <div *ngIf="tanquesNoColocados.length === 0" class="empty-drawer">No quedan tanques por desplegar</div>
             </div>
         </div>
     </div>
