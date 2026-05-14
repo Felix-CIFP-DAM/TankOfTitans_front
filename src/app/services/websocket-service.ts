@@ -12,7 +12,7 @@ export class WebsocketService {
 
   constructor(private ngZone: NgZone) {
     const token = sessionStorage.getItem('token');
-    this.socket = io(environment.socketUrlLocal, {
+    this.socket = io('/', {
       transports: ['websocket'],
       autoConnect: true,
       auth: { token } // Enviamos el token en la conexión inicial
