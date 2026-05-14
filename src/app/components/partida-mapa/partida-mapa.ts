@@ -18,7 +18,6 @@ export class PartidaMapa implements OnInit, AfterViewInit {
 
   capa_suelo: any[][] = [];
   capa_objetos: any[][] = [];
-  capa_tanques: any[][] = [];
   cols = 15;
   rows = 10;
   
@@ -49,6 +48,10 @@ export class PartidaMapa implements OnInit, AfterViewInit {
   constructor(private el: ElementRef) {}
 
   ngOnInit() {
+    this.cargarMapaDesdeStorage();
+  }
+
+  cargarMapaDesdeStorage() {
     const saved = localStorage.getItem('mapa_temp');
     if (saved) {
       try {
@@ -60,26 +63,17 @@ export class PartidaMapa implements OnInit, AfterViewInit {
             this.rows = this.capa_suelo.length;
             this.cols = this.capa_suelo[0].length;
           }
-          this.initTanques();
         }
       } catch (e) {
         console.error("Error cargando mapa:", e);
       }
-    } else {
-      this.initTanques();
     }
-  }
-
-  initTanques() {
-    this.capa_tanques = Array.from({ length: this.rows }, () =>
-      Array(this.cols).fill(null)
-    );
   }
 
   ngAfterViewInit() {
     setTimeout(() => {
       this.centerAndFitMap();
-    }, 0);
+    }, 200);
   }
 
   @HostListener('window:resize')
@@ -127,20 +121,20 @@ export class PartidaMapa implements OnInit, AfterViewInit {
   }
 
   getTileStyle(tile: any) {
-    if (!tile) return {};
+    if (!tile || !tile.sheet) return {};
     const palette = this.palettes.find(p => p.id === tile.sheet);
     if (!palette) return {};
     return {
       'background-image': `url('${palette.path}')`,
-      'background-position': `-${tile.x * 48}px -${tile.y * 48}px`,
+      'background-position': `-${(tile.x || 0) * 48}px -${(tile.y || 0) * 48}px`,
       'opacity': tile.tipo === 'Transitable' && tile.x === 0 && tile.y === 0 && tile.sheet === 'suelos-1' ? '0' : '1'
     };
   }
 
   getObjectStyle(obj: any) {
-    if (!obj) return { 'display': 'none' };
+    if (!obj || !obj.sheet) return { 'display': 'none' };
     const palette = (this.palettes as any[]).find(p => p.id === obj.sheet);
-    if (!palette) return {};
+    if (!palette) return { 'display': 'none' };
     const bgSize = (palette.cols && palette.rows) ? `${palette.cols * 48}px ${palette.rows * 48}px` : 'auto';
     return {
       'background-image': `url('${palette.path}')`,
@@ -170,22 +164,23 @@ export class PartidaMapa implements OnInit, AfterViewInit {
   }
 
   esColocable(x: number, y: number): boolean {
+    if (!this.gameState || !this.gameState.jugadores) return false;
     if (!this.esTransitable(x, y) || this.hayTanque(x, y)) return false;
     
-    // Buscar base del jugador
     const miNick = sessionStorage.getItem('nickname');
-    const miJugador = this.gameState?.jugadores ? Object.values(this.gameState.jugadores).find((j: any) => j.nickname === miNick) : null;
+    if (!miNick) return false;
+    
+    const jugadores = Object.values(this.gameState.jugadores);
+    const miJugador: any = jugadores.find((j: any) => j.nickname === miNick);
     if (!miJugador) return false;
 
-    // J1 es Host (Base_J1), J2 es Invitado (Base_J2)
-    // En el backend lo marcamos en el GameState.
-    // Por ahora simplificamos: el host es el primero en Object.keys
-    const isHost = String(miJugador.id) === Object.keys(this.gameState.jugadores)[0];
+    const hostId = Object.keys(this.gameState.jugadores)[0];
+    const isHost = String(miJugador.id) === String(hostId);
     const tipoBase = isHost ? 'Base_J1' : 'Base_J2';
 
-    // Encontrar base en el mapa
     let baseX = -1, baseY = -1;
     for (let row = 0; row < this.rows; row++) {
+      if (!this.capa_objetos[row]) continue;
       for (let col = 0; col < this.cols; col++) {
         const obj = this.capa_objetos[row][col];
         if (obj && obj.tipo === tipoBase) {
@@ -198,19 +193,19 @@ export class PartidaMapa implements OnInit, AfterViewInit {
     }
 
     if (baseX === -1) return false;
-
-    // Rango 4 desde la base
     return Math.abs(x - baseX) <= 4 && Math.abs(y - baseY) <= 4;
   }
 
   esTransitable(x: number, y: number): boolean {
+    if (!this.capa_suelo || !this.capa_suelo[y] || !this.capa_suelo[y][x]) return false;
     const tile = this.capa_suelo[y][x];
-    const obj = this.capa_objetos[y][x];
+    const obj = (this.capa_objetos && this.capa_objetos[y]) ? this.capa_objetos[y][x] : null;
     return tile?.tipo !== 'No_Transitable' && (!obj || obj.tipo !== 'No_Transitable');
   }
 
   hayTanque(x: number, y: number): boolean {
-    return !!this.gameState?.tanques?.find((t: any) => t.posX === x && t.posY === y);
+    if (!this.gameState || !this.gameState.tanques) return false;
+    return !!this.gameState.tanques.find((t: any) => t.posX === x && t.posY === y);
   }
 
   onClickCasilla(x: number, y: number) {
