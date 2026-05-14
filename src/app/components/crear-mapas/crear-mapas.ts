@@ -10,14 +10,14 @@ export interface TileInfo {
   x: number;
   y: number;
   sheet: string;
-  tipo: 'Transitable' | 'No_Transitable';
+  tipo: 'Transitable' | 'No_Transitable' | 'Base_J1' | 'Base_J2';
 }
 
 export interface ObjectInfo {
   x: number;
   y: number;
   sheet: string;
-  tipo: 'Transitable' | 'No_Transitable';
+  tipo: 'Transitable' | 'No_Transitable' | 'Base_J1' | 'Base_J2';
 }
 
 export interface PaletteDef {
@@ -65,7 +65,7 @@ export class CrearMapas implements OnInit, OnDestroy {
 
   // Selection Logic
   selectedSprite: { x: number, y: number, sheet: string } = { x: 0, y: 0, sheet: 'suelos-1' };
-  selectedTipo: 'Transitable' | 'No_Transitable' = 'Transitable';
+  selectedTipo: 'Transitable' | 'No_Transitable' | 'Base_J1' | 'Base_J2' = 'Transitable';
   isMouseDown = false;
 
   // Zoom & Pan state
@@ -193,6 +193,11 @@ export class CrearMapas implements OnInit, OnDestroy {
   }
 
   paint(x: number, y: number) {
+    if (this.selectedTipo === 'Base_J1' || this.selectedTipo === 'Base_J2') {
+      this.paintBase(x, y, this.selectedTipo);
+      return;
+    }
+
     const palette = this.palettes.find(p => p.id === this.selectedSprite.sheet);
     if (!palette) return;
 
@@ -205,6 +210,41 @@ export class CrearMapas implements OnInit, OnDestroy {
         sheet: this.selectedSprite.sheet,
         tipo: this.selectedTipo
       };
+    }
+  }
+
+  paintBase(x: number, y: number, tipo: 'Base_J1' | 'Base_J2') {
+    // Validar que quepa un 2x2
+    if (x + 1 >= this.cols || y + 1 >= this.rows) return;
+
+    // Eliminar base previa del mismo jugador si existe
+    this.removeBase(tipo);
+
+    // Pintar 2x2 en capa de objetos
+    // Por ahora usamos un sprite genérico (miscelaneous-1, x:8, y:0 es una caja)
+    // El usuario podrá cambiar el sprite después si quiere, pero el TIPO será lo importante
+    const baseSprite = { sheet: 'miscelaneous-1', x: 8, y: 0 }; 
+
+    for (let dy = 0; dy < 2; dy++) {
+      for (let dx = 0; dx < 2; dx++) {
+        this.capa_objetos[y + dy][x + dx] = { 
+          ...baseSprite, 
+          x: baseSprite.x + dx, 
+          y: baseSprite.y + dy, 
+          tipo 
+        };
+      }
+    }
+  }
+
+  removeBase(tipo: string) {
+    for (let y = 0; y < this.rows; y++) {
+      for (let x = 0; x < this.cols; x++) {
+        const obj = this.capa_objetos[y][x];
+        if (obj && obj.tipo === tipo) {
+          this.capa_objetos[y][x] = null;
+        }
+      }
     }
   }
 

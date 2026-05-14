@@ -14,6 +14,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 export class Sesion implements OnInit {
 
   loginForm!: FormGroup;
+  enviando: boolean = false;
 
   constructor(
     private dataService: DataService,
@@ -40,17 +41,20 @@ export class Sesion implements OnInit {
       nickname: this.loginForm.value.nickname,
       password: this.loginForm.value.password,
     };
-    
+
     console.log("Enviando datos de login: ", data);
+    this.enviando = true;
 
     this.dataService.login(data).subscribe({
       next: (response) => {
+        this.enviando = false;
         this.talkerService.notificarExito("Login exitoso");
       },
       error: (err) => {
         const message = err.error?.message || err.message || "Error desconocido";
         this.talkerService.notificarError(`Error al iniciar sesion: ${message}`);
         console.error("Error al iniciar sesion: ", err);
+        this.enviando = false;
       }
     });
   }

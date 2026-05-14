@@ -13,6 +13,7 @@ import { TalkerService } from '../../services/talker-service';
 export class Registro {
 
   formRegistro: FormGroup;
+  enviando: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -49,6 +50,8 @@ export class Registro {
       return;
     }
 
+    this.enviando = true;
+
     const data = {
       nombre: this.formRegistro.value.nombre,
       nickname: this.formRegistro.value.nickname,
@@ -60,12 +63,14 @@ export class Registro {
 
     this.dataService.registro(data).subscribe({
       next: (response) => {
+        this.enviando = false;
         this.talkerService.notificarExito("Registro exitoso");
       },
       error: (err) => {
         const message = err.error?.message || err.message || "Error desconocido";
         this.talkerService.notificarError(`Error al registrar: ${message}`);
         console.error("Error al registrar: ", err);
+        this.enviando = false;
       }
     });
   }

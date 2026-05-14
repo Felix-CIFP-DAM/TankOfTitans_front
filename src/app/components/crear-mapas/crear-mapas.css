@@ -329,6 +329,16 @@
     background: #004d00;
 }
 
+.btn-base-j1.active {
+    background: #4d0000;
+    border-color: #ff4747;
+}
+
+.btn-base-j2.active {
+    background: #00004d;
+    border-color: #4771ff;
+}
+
 .tile-cell:hover {
     outline: 1px solid #ffd700;
     z-index: 10;
@@ -351,4 +361,24 @@
     );
     border: 1px inset rgba(255, 0, 0, 0.5);
     box-sizing: border-box;
-}
+}
+
+.base-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 20;
+    pointer-events: none;
+    text-shadow: 2px 2px 4px black;
+    border: 1px solid white;
+}
+
+.base-indicator.j1 { background: rgba(255, 71, 71, 0.8); }
+.base-indicator.j2 { background: rgba(71, 113, 255, 0.8); }
+

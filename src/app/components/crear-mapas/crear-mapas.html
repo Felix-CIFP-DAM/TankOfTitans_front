@@ -31,6 +31,8 @@
                         (Pasar)</button>
                     <button class="btn-tipo" [class.active]="selectedTipo === 'No_Transitable'" (click)="selectedTipo = 'No_Transitable'">NO TRANSITABLE
                         (Bloqueo)</button>
+                    <button class="btn-tipo btn-base-j1" [class.active]="selectedTipo === 'Base_J1'" (click)="selectedTipo = 'Base_J1'">BASE J1</button>
+                    <button class="btn-tipo btn-base-j2" [class.active]="selectedTipo === 'Base_J2'" (click)="selectedTipo = 'Base_J2'">BASE J2</button>
                 </div>
                 <p class="palette-info">Define si el sprite que elijas será transitable o no.</p>
             </div>
@@ -86,6 +88,10 @@
 
                             <!-- Indicador de Bloqueo -->
                             <div class="no-transitable-indicator" *ngIf="!esTransitable(x, y)"></div>
+
+                            <!-- Marcador de Base -->
+                            <div class="base-indicator j1" *ngIf="capa_objetos[y][x]?.tipo === 'Base_J1'">J1</div>
+                            <div class="base-indicator j2" *ngIf="capa_objetos[y][x]?.tipo === 'Base_J2'">J2</div>
                         </div>
                     </div>
                 </div>
