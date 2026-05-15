@@ -5,3 +5,66 @@
     overflow: hidden;
     background-color: #000;
 }
+
+.notification-ribbon-container {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    transform: translateY(-50%);
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.notification-ribbon {
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.9) 15%, rgba(0, 0, 0, 0.9) 85%, transparent 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 2px solid #ffd700;
+    border-bottom: 2px solid #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    
+    /* Animación */
+    animation: slide-in-out 4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.ribbon-content {
+    text-align: center;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.ribbon-main-text {
+    font-size: 3rem;
+    margin: 0;
+    font-weight: 900;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffd700;
+}
+
+.ribbon-sub-text {
+    font-size: 1.2rem;
+    margin: 0;
+    color: #fff;
+    font-weight: 300;
+}
+
+@keyframes slide-in-out {
+    0% {
+        transform: translateX(100%);
+    }
+    15% {
+        transform: translateX(0);
+    }
+    85% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}

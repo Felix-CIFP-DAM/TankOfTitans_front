@@ -22,9 +22,15 @@
             <div class="avatar-item"
                  *ngFor="let avatar of avatares"
                  [class.selected]="perfil.icono === avatar.id"
+                 [class.bloqueado]="!avatar.comprado"
                  (click)="seleccionarAvatar(avatar)">
               <img [src]="'perfiles/' + avatar.imagen" [alt]="avatar.nombre" class="avatar-img">
-              <div class="avatar-tooltip">{{ getIconName(avatar.nombre) }}</div>
+              <div class="avatar-tooltip">
+                {{ getIconName(avatar.nombre) }}
+                <div class="avatar-price" *ngIf="!avatar.comprado">
+                  💰 {{ avatar.precio }}
+                </div>
+              </div>
               <div class="avatar-overlay" *ngIf="perfil.icono === avatar.id">
                 <span class="check-icon">✓</span>
               </div>

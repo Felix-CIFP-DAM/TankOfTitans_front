@@ -38,6 +38,10 @@ export class PerfilUsuario implements OnInit {
   }
 
   seleccionarAvatar(avatar: any) {
+    if (!avatar.comprado) {
+      console.warn('[FRONT][PerfilUsuario] ⚠️ Intento de seleccionar avatar no comprado:', avatar.nombre);
+      return;
+    }
     console.log('[FRONT][PerfilUsuario] 🔲 Avatar seleccionado:', avatar.nombre, '| ID:', avatar.id);
     this.perfil.icono = avatar.id;
   }

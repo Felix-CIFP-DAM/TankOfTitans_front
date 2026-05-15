@@ -45,7 +45,10 @@ export class Preparacion implements OnInit, OnDestroy {
   cuentaAtras = signal<number | null>(null);
 
   private socketSub?: Subscription;
+  private abandonSub?: Subscription;
   private ultimaPartidaRecibida: any = null;
+  private isNavigatingToGame = false;
+  private isAbandoning = false;
 
   constructor(
     private router: Router,
@@ -85,8 +88,25 @@ export class Preparacion implements OnInit, OnDestroy {
     // Escuchar inicio de partida (envío a selección de tanques)
     this.websocketService.listen('seleccionTanques').subscribe((datos: any) => {
       console.log('[FRONT][Preparacion] 🚀 ¡Partida iniciada! Redirigiendo...', datos);
+      this.isNavigatingToGame = true;
       // Guardamos el mapa en el localStorage para que el componente partida-mapa lo lea
       localStorage.setItem('mapa_temp', JSON.stringify(datos.mapa));
+      
+      // --- FIX CRÍTICO ---
+      // Guardamos los tanquesIds del jugador actual en localStorage para que
+      // partida.ts los pueda leer sin depender de un socket round-trip de `obtenerEstadoSala`
+      // (que falla porque ya estamos en la sala game_* cuando llegamos a /partida)
+      const miNick = sessionStorage.getItem('nickname');
+      const yo = this.jugadores.find(j => j.nickname === miNick);
+      if (yo && yo.tanquesIds) {
+        localStorage.setItem('mis_tanques_ids', JSON.stringify(yo.tanquesIds));
+        console.log('[FRONT][Preparacion] 💾 tanquesIds guardados en localStorage:', yo.tanquesIds);
+      } else {
+        // Fallback: usar el pelotón local como fuente de verdad
+        const pelotón = this.peloton().map(t => t.id);
+        localStorage.setItem('mis_tanques_ids', JSON.stringify(pelotón));
+        console.log('[FRONT][Preparacion] 💾 tanquesIds (peloton fallback) guardados:', pelotón);
+      }
       
       this.router.navigate(['/partida'], { 
         queryParams: { 
@@ -95,10 +115,21 @@ export class Preparacion implements OnInit, OnDestroy {
         } 
       });
     });
+
+    // Escuchar si alguien abandona
+    this.abandonSub = this.websocketService.listen('jugadorAbandono').subscribe((datos: any) => {
+      console.log('[FRONT][Preparacion] 🚪 jugadorAbandono recibido:', datos);
+      // Actualizamos el estado pidiéndolo de nuevo al servidor (el backend ya lo emite automáticamente pero esto es un seguro)
+      this.websocketService.emit('obtenerEstadoSala', { partidaId: this.id_sala });
+    });
   }
 
   ngOnDestroy(): void {
+    if (!this.isNavigatingToGame && !this.isAbandoning && this.id_sala) {
+      this.dataService.abandonarPartida(Number(this.id_sala));
+    }
     this.socketSub?.unsubscribe();
+    this.abandonSub?.unsubscribe();
   }
 
   cargarDatos() {
@@ -190,8 +221,16 @@ export class Preparacion implements OnInit, OnDestroy {
     this.websocketService.emit('marcarListo', { partidaId: this.id_sala });
   }
 
+  desconectar() {
+    if (confirm('¿Estás seguro de que quieres abandonar la sala?')) {
+      this.isAbandoning = true;
+      this.dataService.abandonarPartida(Number(this.id_sala));
+      this.router.navigate(['/menu']);
+    }
+  }
+
   volverAlMenu() {
-    this.router.navigate(['/menu']);
+    this.desconectar();
   }
 
   // Helper para saber si el usuario actual está listo

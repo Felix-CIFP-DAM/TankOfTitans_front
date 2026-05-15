@@ -1,44 +1,70 @@
 <div class="hud-wrapper">
     <!-- Row 1: Barra de turnos -->
-    <div class="hud-turn-bar">
+    <div class="hud-turn-bar" style="display: flex; justify-content: space-between; padding: 0 20px;">
         <div class="turn-queue">
-            <span>{{ rivales[0]?.nickname }} &rarr; {{ miUsuario?.nickname }}</span>
+            <span *ngIf="gameState">Turno de: <strong>{{ nicknameTurno }}</strong></span>
         </div>
+        <button class="action-btn btn-poly"
+            style="background-color: rgba(220, 53, 69, 0.2); color: #ff4d4d; border-color: #ff4d4d; font-size: 0.8rem; padding: 5px 15px; min-width: auto; height: 30px; margin-top: 5px;"
+            (click)="onRendirse()">
+            RENDIRSE
+        </button>
     </div>
 
     <!-- Row 2: Top Info -->
     <div class="hud-top-left player-card" *ngIf="rivales[0]">
-        <div class="avatar-circle">R</div>
-        <div class="player-name">{{ rivales[0].nickname }}</div>
-        <div class="action-points">PA: {{ rivales[0].pa || 0 }}</div>
+        <div class="avatar-container">
+            <img [src]="'/perfiles/' + (rivales[0].avatar || 'recluta.png')" class="avatar-img" alt="Rival">
+        </div>
+        <div class="player-info-box">
+            <div class="player-name">{{ rivales[0].nickname }}</div>
+            <div class="action-points">PA: {{ rivales[0].pa || 0 }}</div>
+            <div class="health-points">HP: {{ rivales[0].vida || 1000 }}</div>
+        </div>
     </div>
-    
+
     <div class="hud-top-center">
         <div class="timer-box">
-            <span class="label">Temporizador de turno</span>
+            <span class="label">Turno</span>
             <span class="time">{{ timerTurno }}</span>
         </div>
         <div class="turn-info">
-            <span class="label">Turno actual</span>
-            <div class="turn-current">1</div>
+            <span class="label">Turno #{{ gameState?.turnoNumero || 0 }}</span>
+            <div class="turn-current">{{ gameState?.estado || '...' }}</div>
+            <div class="turn-nickname" style="font-size: 0.7rem; color: #aaa;">{{ nicknameTurno }}</div>
         </div>
         <div class="timer-box">
-            <span class="label">Temporizador total</span>
+            <span class="label">Total</span>
             <span class="time">{{ timerTotal }}</span>
         </div>
     </div>
 
     <div class="hud-top-right player-card" *ngIf="miUsuario">
-        <div class="avatar-circle">U</div>
-        <div class="player-name">{{ miUsuario.nickname }} (Tú)</div>
-        <div class="action-points">PA: {{ miUsuario.pa || 0 }}</div>
+        <div class="player-info-box text-right">
+            <div class="player-name">{{ miUsuario.nickname }} (Tú)</div>
+            <div class="action-points">PA: {{ miUsuario.pa || 0 }}</div>
+            <div class="health-points">HP: {{ miUsuario.vida || 1000 }}</div>
+        </div>
+        <div class="avatar-container">
+            <img [src]="'/perfiles/' + (miUsuario.avatar || 'recluta.png')" class="avatar-img" alt="Usuario">
+        </div>
     </div>
 
-    <!-- Row 3: Middle Area -->
+    <!-- Row 3: Middle Area (Drawer/Sidebars) -->
     <div class="hud-side-left">
-        <div class="side-title">Tanques del Rival</div>
-        <div class="tank-list" *ngIf="rivales[0]">
-            <!-- Tanques del rival vendrán del GameState.tanques -->
+        <!-- Tanques rivales -->
+        <div class="side-title" *ngIf="tanquesRivalesEnMapa.length > 0">TANQUES RIVAL</div>
+        <div class="tank-stat-card rival-tank" *ngFor="let t of tanquesRivalesEnMapa">
+            <div class="tank-row">
+                <img [src]="'/vehiculos/miniaturas/' + t.miniatura" class="mini-tank-icon">
+                <div class="tank-details">
+                    <div class="tank-name-mini">{{ t.nombre }}</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar-fill" [style.width.%]="(t.hp / (t.hpMax || 100)) * 100"></div>
+                    </div>
+                    <div class="hp-text">{{ t.hp }} / {{ t.hpMax || 100 }} HP</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -47,29 +73,57 @@
     </div>
 
     <div class="hud-side-right">
-        <div class="side-title">Mis Tanques</div>
-        <div class="tank-list" *ngIf="miUsuario">
-            <!-- Mis tanques del GameState -->
+        <!-- Mis tanques -->
+        <div class="side-title" *ngIf="misTanquesEnMapa.length > 0">MIS TANQUES</div>
+        <div class="tank-stat-card my-tank" *ngFor="let t of misTanquesEnMapa">
+            <div class="tank-row">
+                <img [src]="'/vehiculos/miniaturas/' + t.miniatura" class="mini-tank-icon">
+                <div class="tank-details">
+                    <div class="tank-name-mini">{{ t.nombre }}</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar-fill" [style.width.%]="(t.hp / (t.hpMax || 100)) * 100"></div>
+                    </div>
+                    <div class="hp-text">{{ t.hp }} / {{ t.hpMax || 100 }} HP</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Row 4: Bottom Area -->
-    <div class="hud-bottom">
+    <!-- Row 4: Bottom Area (Acciones y Cajón de Tanques) -->
+    <!-- En JUGANDO, si no es mi turno, el panel se pone gris -->
+    <div class="hud-bottom" [class.disabled-turn]="gameState?.estado === 'JUGANDO' && !esMiTurno()">
         <div class="actions-panel">
-            <button class="action-btn btn-poly" [class.active]="accionActual === 'Poner'" (click)="onActionClick('Poner')">PONER TANQUE</button>
-            <button class="action-btn btn-poly" [class.active]="accionActual === 'Mover'" (click)="onActionClick('Mover')">MOVERSE</button>
-            <button class="action-btn btn-poly" [class.active]="accionActual === 'Disparar'" (click)="onActionClick('Disparar')">DISPARAR</button>
+            <button class="action-btn btn-poly" [class.active]="accionActual === 'Poner'"
+                (click)="onActionClick('Poner')"
+                [disabled]="(gameState?.estado && gameState?.estado !== 'COLOCACION') || tanquesNoColocados.length === 0">
+                PONER TANQUE <span class="btn-cost" *ngIf="tanqueEnMano?.costePoner">({{tanqueEnMano.costePoner}}
+                    PA)</span>
+            </button>
+            <button class="action-btn btn-poly" [class.active]="accionActual === 'Mover'"
+                (click)="onActionClick('Mover')"
+                [disabled]="gameState?.estado !== 'JUGANDO' || !esMiTurno()">MOVERSE</button>
+            <button class="action-btn btn-poly" [class.active]="accionActual === 'Disparar'"
+                (click)="onActionClick('Disparar')"
+                [disabled]="gameState?.estado !== 'JUGANDO' || !esMiTurno()">DISPARAR</button>
+            <button class="action-btn btn-poly" style="color: #ffc107;" (click)="onPasarTurno()"
+                *ngIf="gameState?.estado === 'JUGANDO'" [disabled]="!esMiTurno()">
+                PASAR TURNO
+            </button>
         </div>
-        
+
         <!-- Drawer for tanks when placing -->
         <div class="tank-drawer" *ngIf="accionActual === 'Poner'">
             <div class="drawer-title">Selecciona un tanque de tu escuadrón:</div>
             <div class="drawer-list">
-                <div class="drawer-item" *ngFor="let t of tanquesNoColocados" (click)="onSelectTank(t)">
-                    <div class="tank-icon">T</div>
+                <div class="drawer-item" *ngFor="let t of tanquesNoColocados" (click)="onSelectTank(t)"
+                    [class.selected]="t.id === tanqueEnMano?.id">
+                    <div class="tank-icon">
+                        <img [src]="'/vehiculos/portadas/' + t.imagenPortada" *ngIf="t.imagenPortada" alt="tank">
+                        <span *ngIf="!t.imagenPortada">T</span>
+                    </div>
                     <div class="tank-info">
                         <span class="tank-name">{{ t.nombre }}</span>
-                        <span class="tank-hp">HP: {{ t.vida }}</span>
+                        <span class="tank-hp">Coste: <strong>{{ t.costePoner }} PA</strong></span>
                     </div>
                 </div>
                 <div *ngIf="tanquesNoColocados.length === 0" class="empty-drawer">No quedan tanques por desplegar</div>

@@ -13,6 +13,8 @@ export class PartidaMapa implements OnInit, AfterViewInit, OnChanges {
   @Input() tanqueEnMano: any = null;
   @Input() gameState: any = null;
   @Input() miUsuario: any = null;
+  @Input() rivales: any[] = [];
+  @Input() selectedTank: any = null;
   
   @Output() onCasillaClick = new EventEmitter<{x: number, y: number}>();
 
@@ -43,7 +45,7 @@ export class PartidaMapa implements OnInit, AfterViewInit, OnChanges {
   translateX = 0;
   translateY = 0;
 
-  selectedBoardTank: {x: number, y: number} | null = null;
+
 
   constructor(private el: ElementRef) {}
 
@@ -170,15 +172,17 @@ export class PartidaMapa implements OnInit, AfterViewInit, OnChanges {
       if (this.esColocable(x, y)) return 'place';
     }
 
-    if (!this.accionActual || !this.selectedBoardTank) return null;
-    const dx = Math.abs(x - this.selectedBoardTank.x);
-    const dy = Math.abs(y - this.selectedBoardTank.y);
+    if (!this.accionActual || !this.selectedTank) return null;
+
+    const dx = Math.abs(x - this.selectedTank.posX);
+    const dy = Math.abs(y - this.selectedTank.posY);
     const distance = dx + dy;
 
-    if (this.accionActual === 'Mover' && distance > 0 && distance <= 3) {
-      if (this.esTransitable(x, y) && !this.hayTanque(x, y)) return 'move';
+    if (this.accionActual === 'Mover' && distance > 0 && distance <= (this.selectedTank.rangoMovimiento || 3)) {
+      const hayEscombros = (this.gameState?.escombros || []).some((e: any) => e.x === x && e.y === y);
+      if (this.esTransitable(x, y) && !this.hayTanque(x, y) && !hayEscombros) return 'move';
     }
-    if (this.accionActual === 'Disparar' && distance > 0 && distance <= 5) return 'shoot';
+    if (this.accionActual === 'Disparar' && distance > 0 && distance <= (this.selectedTank.rangoAtaque || 5)) return 'shoot';
 
     return null;
   }
@@ -187,33 +191,60 @@ export class PartidaMapa implements OnInit, AfterViewInit, OnChanges {
     if (!this.gameState || !this.gameState.jugadores) return false;
     if (!this.esTransitable(x, y) || this.hayTanque(x, y)) return false;
     
-    const miNick = sessionStorage.getItem('nickname');
-    if (!miNick) return false;
-    
-    const jugadores = Object.values(this.gameState.jugadores);
-    const miJugador: any = jugadores.find((j: any) => j.nickname === miNick);
-    if (!miJugador) return false;
+    if (!this.miUsuario) return false;
 
-    const hostId = Object.keys(this.gameState.jugadores)[0];
-    const isHost = String(miJugador.id) === String(hostId);
+    const hostId = this.gameState.hostId;
+    const isHost = String(this.miUsuario.id) === String(hostId);
     const tipoBase = isHost ? 'Base_J1' : 'Base_J2';
 
-    let baseX = -1, baseY = -1;
+    const baseTiles: {x: number, y: number}[] = [];
     for (let row = 0; row < this.rows; row++) {
-      if (!this.capa_objetos[row]) continue;
       for (let col = 0; col < this.cols; col++) {
-        const obj = this.capa_objetos[row][col];
-        if (obj && obj.tipo === tipoBase) {
-          baseX = col;
-          baseY = row;
-          break;
+        const obj = (this.capa_objetos && this.capa_objetos[row]) ? this.capa_objetos[row][col] : null;
+        const ground = (this.capa_suelo && this.capa_suelo[row]) ? this.capa_suelo[row][col] : null;
+        
+        if ((obj && (obj.tipo === 'Base_J1' || obj.tipo === 'Base_J2')) || 
+            (ground && (ground.tipo === 'Base_J1' || ground.tipo === 'Base_J2'))) {
+          // Solo añadimos si es la base del jugador actual
+          if ((obj && obj.tipo === tipoBase) || (ground && ground.tipo === tipoBase)) {
+            baseTiles.push({ x: col, y: row });
+          }
         }
       }
-      if (baseX !== -1) break;
     }
 
-    if (baseX === -1) return false;
-    return Math.abs(x - baseX) <= 4 && Math.abs(y - baseY) <= 4;
+    if (baseTiles.length === 0) {
+        // Fallback robusto para mapas antiguos
+        const fbX = isHost ? 1 : (this.cols > 0 ? this.cols - 2 : 13);
+        const fbY = isHost ? 1 : (this.rows > 0 ? this.rows - 2 : 8);
+        baseTiles.push({ x: fbX, y: fbY });
+    }
+    
+    // Evitar poner exactamente encima de una base (propia o rival)
+    const currentObj = this.capa_objetos[y] && this.capa_objetos[y][x];
+    const currentGround = this.capa_suelo[y] && this.capa_suelo[y][x];
+    if ((currentObj && (currentObj.tipo === 'Base_J1' || currentObj.tipo === 'Base_J2')) ||
+        (currentGround && (currentGround.tipo === 'Base_J1' || currentGround.tipo === 'Base_J2'))) {
+      return false;
+    }
+
+    // Comprobar si está cerca de CUALQUIER tile de la base propia (Rango 5)
+    const tile = this.capa_suelo[y][x];
+    const obj = this.capa_objetos[y][x];
+    // No transitable
+    if (tile?.tipo === 'No_Transitable' || (obj && obj.tipo === 'No_Transitable')) return false;
+    // Ocupado por tanque
+    if (this.hayTanque(x, y)) return false;
+    // Ocupado por escombros
+    const hayEscombros = (this.gameState?.escombros || []).some((e: any) => e.x === x && e.y === y);
+    if (hayEscombros) return false;
+
+    // Solo cerca de la base propia
+    return baseTiles.some(b => {
+      const dx = Math.abs(x - b.x);
+      const dy = Math.abs(y - b.y);
+      return (dx + dy) <= 5;
+    });
   }
 
   esTransitable(x: number, y: number): boolean {
@@ -224,8 +255,7 @@ export class PartidaMapa implements OnInit, AfterViewInit, OnChanges {
   }
 
   hayTanque(x: number, y: number): boolean {
-    if (!this.gameState || !this.gameState.tanques) return false;
-    return !!this.gameState.tanques.find((t: any) => t.posX === x && t.posY === y);
+    return (this.gameState?.tanques || []).some((t: any) => t.posX === x && t.posY === y && t.vivo);
   }
 
   onClickCasilla(x: number, y: number) {
@@ -258,5 +288,47 @@ export class PartidaMapa implements OnInit, AfterViewInit, OnChanges {
   @HostListener('window:mouseup')
   onMouseUp() {
     this.isDragging = false;
+  }
+
+  get baseInfo() {
+    if (!this.gameState || !this.gameState.jugadores) return { j1: '', j2: '', a1: '', a2: '' };
+    
+    // Combine miUsuario and rivales to find avatars
+    const allPlayers = [this.miUsuario, ...this.rivales].filter(Boolean);
+
+    // jugadores llega como objeto { "id1": {...}, "id2": {...} } — convertir a array
+    const jugadoresArr: any[] = Array.isArray(this.gameState.jugadores)
+      ? this.gameState.jugadores
+      : Object.values(this.gameState.jugadores);
+
+    const host = jugadoresArr.find((j: any) => String(j.id) === String(this.gameState.hostId));
+    const guest = jugadoresArr.find((j: any) => String(j.id) !== String(this.gameState.hostId));
+    
+    const hostAvatar = allPlayers.find(p => p.id === host?.id)?.avatar || 'recluta.png';
+    const guestAvatar = allPlayers.find(p => p.id === guest?.id)?.avatar || 'recluta.png';
+
+    return {
+      j1: host?.nickname || 'Host',
+      j2: guest?.nickname || 'Rival',
+      a1: hostAvatar,
+      a2: guestAvatar
+    };
+  }
+
+  isMyBase(tipoBase: string): boolean {
+    if (!this.gameState || !this.miUsuario) return false;
+    const hostId = this.gameState.hostId;
+    const amIHost = String(this.miUsuario.id) === String(hostId);
+    if (amIHost && tipoBase === 'Base_J1') return true;
+    if (!amIHost && tipoBase === 'Base_J2') return true;
+    return false;
+  }
+
+  isTopLeftBase(x: number, y: number, tipoBase: string): boolean {
+    if (!tipoBase || !tipoBase.startsWith('Base_')) return false;
+    const isLeftSame = x > 0 && this.capa_objetos[y][x - 1]?.tipo === tipoBase;
+    const isTopSame = y > 0 && this.capa_objetos[y - 1][x]?.tipo === tipoBase;
+    // It's the top-left if neither the left nor the top tile are the same base
+    return !isLeftSame && !isTopSame;
   }
 }

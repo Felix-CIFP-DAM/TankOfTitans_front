@@ -4,10 +4,10 @@
         <form class="formulario form-sesion" [formGroup]="loginForm" (ngSubmit)="enviarSolicitud()">
             <h2>Iniciar Sesión</h2>
             <div class="input-group">
-                <label>Nickname de soldado</label>
-                <input type="text" placeholder="Escribe tu nickname de soldado" formControlName="nickname" />
+                <label>Nickname o Correo</label>
+                <input type="text" placeholder="Escribe tu nickname o correo" formControlName="nickname" />
                 @if (loginForm.get('nickname')?.invalid && loginForm.get('nickname')?.touched) {
-                <span class="error-message">El nickname es obligatorio</span>
+                <span class="error-message">El nickname o correo es obligatorio</span>
                 }
             </div>
             <div class="input-group">

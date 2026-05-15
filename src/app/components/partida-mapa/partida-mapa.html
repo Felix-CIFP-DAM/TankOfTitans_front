@@ -8,19 +8,38 @@
                  <div class="tile" [ngStyle]="getTileStyle(capa_suelo[y][x])"></div>
                  <div class="object-tile" *ngIf="capa_objetos[y][x]" [ngStyle]="getObjectStyle(capa_objetos[y][x])"></div>
                  
-                 <!-- Capa 3: Tanques del GameState -->
-                 <ng-container *ngFor="let t of gameState?.tanques">
-                    <div class="object-tile tank-unit" *ngIf="t.posX === x && t.posY === y" 
-                        [class.rival]="t.propietarioId !== miUsuario?.id"
-                        [ngStyle]="getObjectStyle({sheet: 'miscelaneous-1', x: t.tipo === 'ARTILLERIA' ? 2 : 0, y: 0})">
+                 <!-- Base markers -->
+                 <div class="base-marker" *ngIf="isTopLeftBase(x, y, capa_objetos[y][x]?.tipo)">
+                     <div class="base-badge" [class.my-base]="isMyBase(capa_objetos[y][x]?.tipo)"
+                          [title]="capa_objetos[y][x]?.tipo === 'Base_J1' ? baseInfo.j1 : baseInfo.j2">
+                         <img [src]="'/perfiles/' + (capa_objetos[y][x]?.tipo === 'Base_J1' ? baseInfo.a1 : baseInfo.a2)" 
+                              alt="Base owner" class="base-avatar">
+                     </div>
+                 </div>
+                 
+                  <!-- Escombros (Tanques destruidos) -->
+                  <ng-container *ngFor="let e of gameState?.escombros">
+                    <div class="object-tile tank-wreck" *ngIf="e.x === x && e.y === y">
+                        <img src="/vehiculos/destruido1.png" alt="wreck" class="map-tank-img">
+                        <div class="wreck-timer">{{ e.turnos }}</div>
                     </div>
-                 </ng-container>
+                  </ng-container>
+                  
+                  <!-- Capa 3: Tanques del GameState -->
+                  <ng-container *ngFor="let t of gameState?.tanques">
+                    <div class="object-tile tank-unit" *ngIf="t.posX === x && t.posY === y && t.vivo" 
+                        [class.rival]="t.propietarioId !== miUsuario?.id">
+                        <!-- Use miniature if available, fallback to CSS sprite if not -->
+                        <img *ngIf="t.miniatura" [src]="'/vehiculos/miniaturas/' + t.miniatura" alt="tank" class="map-tank-img">
+                        <div *ngIf="!t.miniatura" style="width: 100%; height: 100%;" [ngStyle]="getObjectStyle({sheet: 'miscelaneous-1', x: t.tipo === 'ARTILLERIA' ? 2 : 0, y: 0})"></div>
+                    </div>
+                  </ng-container>
                  
                  <!-- Highlights and Selectors -->
                  <div class="highlight overlay-move" *ngIf="isHighlight(x, y) === 'move'"></div>
                  <div class="highlight overlay-shoot" *ngIf="isHighlight(x, y) === 'shoot'"></div>
                  <div class="highlight overlay-place" *ngIf="isHighlight(x, y) === 'place'"></div>
-                 <div class="highlight overlay-selected" *ngIf="selectedBoardTank?.x === x && selectedBoardTank?.y === y"></div>
+                 <div class="highlight overlay-selected" *ngIf="selectedTank?.posX === x && selectedTank?.posY === y"></div>
              </div>
          </div>
     </div>
