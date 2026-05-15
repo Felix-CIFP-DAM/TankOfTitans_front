@@ -1,10 +1,14 @@
 <div class="hud-wrapper">
     <!-- Row 1: Barra de turnos -->
-    <div class="hud-turn-bar">
+    <div class="hud-turn-bar" style="display: flex; justify-content: space-between; padding: 0 20px;">
         <div class="turn-queue">
-            <span *ngIf="gameState">Turno de: <strong>{{ gameState?.turnoActual === miUsuario?.id ? 'TÚ' :
-                    rivales[0]?.nickname }}</strong></span>
+            <span *ngIf="gameState">Turno de: <strong>{{ nicknameTurno }}</strong></span>
         </div>
+        <button class="action-btn btn-poly"
+            style="background-color: rgba(220, 53, 69, 0.2); color: #ff4d4d; border-color: #ff4d4d; font-size: 0.8rem; padding: 5px 15px; min-width: auto; height: 30px; margin-top: 5px;"
+            (click)="onRendirse()">
+            RENDIRSE
+        </button>
     </div>
 
     <!-- Row 2: Top Info -->
@@ -25,8 +29,9 @@
             <span class="time">{{ timerTurno }}</span>
         </div>
         <div class="turn-info">
-            <span class="label">Estado</span>
+            <span class="label">Turno #{{ gameState?.turnoNumero || 0 }}</span>
             <div class="turn-current">{{ gameState?.estado || '...' }}</div>
+            <div class="turn-nickname" style="font-size: 0.7rem; color: #aaa;">{{ nicknameTurno }}</div>
         </div>
         <div class="timer-box">
             <span class="label">Total</span>
@@ -47,7 +52,20 @@
 
     <!-- Row 3: Middle Area (Drawer/Sidebars) -->
     <div class="hud-side-left">
-        <!-- Placeholder para tanques rivales -->
+        <!-- Tanques rivales -->
+        <div class="side-title" *ngIf="tanquesRivalesEnMapa.length > 0">TANQUES RIVAL</div>
+        <div class="tank-stat-card rival-tank" *ngFor="let t of tanquesRivalesEnMapa">
+            <div class="tank-row">
+                <img [src]="'/vehiculos/miniaturas/' + t.miniatura" class="mini-tank-icon">
+                <div class="tank-details">
+                    <div class="tank-name-mini">{{ t.nombre }}</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar-fill" [style.width.%]="(t.hp / (t.hpMax || 100)) * 100"></div>
+                    </div>
+                    <div class="hp-text">{{ t.hp }} / {{ t.hpMax || 100 }} HP</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="hud-center">
@@ -55,21 +73,42 @@
     </div>
 
     <div class="hud-side-right">
-        <!-- Placeholder para mis tanques -->
+        <!-- Mis tanques -->
+        <div class="side-title" *ngIf="misTanquesEnMapa.length > 0">MIS TANQUES</div>
+        <div class="tank-stat-card my-tank" *ngFor="let t of misTanquesEnMapa">
+            <div class="tank-row">
+                <img [src]="'/vehiculos/miniaturas/' + t.miniatura" class="mini-tank-icon">
+                <div class="tank-details">
+                    <div class="tank-name-mini">{{ t.nombre }}</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar-fill" [style.width.%]="(t.hp / (t.hpMax || 100)) * 100"></div>
+                    </div>
+                    <div class="hp-text">{{ t.hp }} / {{ t.hpMax || 100 }} HP</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Row 4: Bottom Area (Acciones y Cajón de Tanques) -->
-    <div class="hud-bottom">
+    <!-- En JUGANDO, si no es mi turno, el panel se pone gris -->
+    <div class="hud-bottom" [class.disabled-turn]="gameState?.estado === 'JUGANDO' && !esMiTurno()">
         <div class="actions-panel">
             <button class="action-btn btn-poly" [class.active]="accionActual === 'Poner'"
-                (click)="onActionClick('Poner')" [disabled]="gameState?.turnoActual != miUsuario?.id">
+                (click)="onActionClick('Poner')"
+                [disabled]="(gameState?.estado && gameState?.estado !== 'COLOCACION') || tanquesNoColocados.length === 0">
                 PONER TANQUE <span class="btn-cost" *ngIf="tanqueEnMano?.costePoner">({{tanqueEnMano.costePoner}}
                     PA)</span>
             </button>
             <button class="action-btn btn-poly" [class.active]="accionActual === 'Mover'"
-                (click)="onActionClick('Mover')" [disabled]="gameState?.estado !== 'JUGANDO' || gameState?.turnoActual != miUsuario?.id">MOVERSE</button>
+                (click)="onActionClick('Mover')"
+                [disabled]="gameState?.estado !== 'JUGANDO' || !esMiTurno()">MOVERSE</button>
             <button class="action-btn btn-poly" [class.active]="accionActual === 'Disparar'"
-                (click)="onActionClick('Disparar')" [disabled]="gameState?.estado !== 'JUGANDO' || gameState?.turnoActual != miUsuario?.id">DISPARAR</button>
+                (click)="onActionClick('Disparar')"
+                [disabled]="gameState?.estado !== 'JUGANDO' || !esMiTurno()">DISPARAR</button>
+            <button class="action-btn btn-poly" style="color: #ffc107;" (click)="onPasarTurno()"
+                *ngIf="gameState?.estado === 'JUGANDO'" [disabled]="!esMiTurno()">
+                PASAR TURNO
+            </button>
         </div>
 
         <!-- Drawer for tanks when placing -->

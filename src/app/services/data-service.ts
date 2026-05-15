@@ -192,6 +192,11 @@ export class DataService {
     return respuesta.asObservable();
   }
 
+  abandonarPartida(partidaId: number): void {
+    console.log('[FRONT][DataService] 📤 Emitiendo abandonarPartida:', partidaId);
+    this.socketService.emit('abandonarPartida', { partidaId });
+  }
+
 
   // ===================== PERFIL =====================
 

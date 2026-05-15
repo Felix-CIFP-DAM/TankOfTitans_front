@@ -5,19 +5,34 @@
         [rivales]="rivales"
         [tanquesNoColocados]="misTanquesNoColocados"
         [tanqueEnMano]="tanqueEnMano"
+        [gameState]="gameState()"
         [timerTurno]="timerTurnoStr"
         [timerTotal]="timerTotalStr"
         (actionSelected)="onActionSelected($event)"
-        (tankSelected)="onTankSelected($event)">
+        (tankSelected)="onTankSelected($event)"
+        (abandonEvent)="rendirse()"
+        (pasarTurnoEvent)="pasarTurno()">
         
         <!-- El mapa se inyecta en el hud-center a través de ng-content -->
         <app-partida-mapa 
             [accionActual]="accionActual" 
             [tanqueEnMano]="tanqueEnMano"
+            [selectedTank]="selectedTank"
             [gameState]="gameState()"
             [miUsuario]="miUsuario"
+            [rivales]="rivales"
             (onCasillaClick)="onMapaClick($event)">
         </app-partida-mapa>
 
     </app-partida-hud>
+
+    <!-- Cinta de Notificación Animada -->
+    <div class="notification-ribbon-container" *ngIf="notification.visible">
+        <div class="notification-ribbon">
+            <div class="ribbon-content">
+                <h1 class="ribbon-main-text">{{ notification.message }}</h1>
+                <p class="ribbon-sub-text" *ngIf="notification.submessage">{{ notification.submessage }}</p>
+            </div>
+        </div>
+    </div>
 </div>

@@ -421,3 +421,76 @@
 .drawer-item.selected .tank-name, .drawer-item.selected .tank-hp {
     color: var(--camo-black);
 }
+
+.disabled-turn {
+    filter: grayscale(100%) brightness(0.6);
+    pointer-events: none;
+    transition: filter 0.3s ease, brightness 0.3s ease;
+}
+
+/* Tank Stats Cards */
+.tank-stat-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-military);
+    margin: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.rival-tank { border-left: 3px solid #ff4d4d; }
+.my-tank { border-left: 3px solid var(--military-gold); }
+
+.tank-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mini-tank-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+}
+
+.tank-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tank-name-mini {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    text-transform: uppercase;
+}
+
+.hp-bar-container {
+    height: 4px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #55ff55, #22aa22);
+    box-shadow: 0 0 5px #55ff55;
+    transition: width 0.5s ease;
+}
+
+.rival-tank .hp-bar-fill {
+    background: linear-gradient(90deg, #ff4d4d, #aa2222);
+    box-shadow: 0 0 5px #ff4d4d;
+}
+
+.hp-text {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-align: right;
+}
+

@@ -149,9 +149,9 @@
 
 .base-marker {
     position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 48px;
+    left: 48px;
+    transform: translate(-50%, -50%);
     z-index: 4;
     pointer-events: none;
     white-space: nowrap;
@@ -159,21 +159,44 @@
 
 .base-badge {
     background-color: rgba(26, 26, 26, 0.85);
-    color: #ff5555; /* Default rival color */
-    border: 1px solid #ff5555;
-    padding: 3px 10px;
-    border-radius: 20px; /* Pill shape */
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    text-shadow: 0 0 5px rgba(0,0,0,1);
+    border: 2px solid #ff5555;
+    padding: 2px;
+    border-radius: 50%; /* Circle shape */
     box-shadow: 0 0 10px rgba(255, 85, 85, 0.4), inset 0 0 5px rgba(0,0,0,0.5);
     backdrop-filter: blur(2px);
+    display: inline-flex;
+    pointer-events: auto; /* For hover tooltip */
+    cursor: help;
 }
 
 .base-badge.my-base {
-    color: #55ff55; /* Own base color */
     border-color: #55ff55;
     box-shadow: 0 0 10px rgba(85, 255, 85, 0.4), inset 0 0 5px rgba(0,0,0,0.5);
+}
+
+.base-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.tank-wreck {
+    z-index: 2;
+    filter: grayscale(1) contrast(0.8) brightness(0.6);
+}
+
+.wreck-timer {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #ff5555;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 1px 3px;
+    border-radius: 4px;
+    border: 1px solid #ff5555;
+    box-shadow: 0 0 5px rgba(255, 85, 85, 0.5);
+    z-index: 5;
 }
