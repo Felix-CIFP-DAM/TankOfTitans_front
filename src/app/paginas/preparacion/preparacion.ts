@@ -119,8 +119,13 @@ export class Preparacion implements OnInit, OnDestroy {
     // Escuchar si alguien abandona
     this.abandonSub = this.websocketService.listen('jugadorAbandono').subscribe((datos: any) => {
       console.log('[FRONT][Preparacion] 🚪 jugadorAbandono recibido:', datos);
-      // Actualizamos el estado pidiéndolo de nuevo al servidor (el backend ya lo emite automáticamente pero esto es un seguro)
       this.websocketService.emit('obtenerEstadoSala', { partidaId: this.id_sala });
+    });
+
+    // Escuchar errores del servidor
+    this.websocketService.listen('error').subscribe((res: any) => {
+      console.error('[FRONT][Preparacion] ❌ Error del servidor:', res.error);
+      alert('Error: ' + res.error);
     });
   }
 

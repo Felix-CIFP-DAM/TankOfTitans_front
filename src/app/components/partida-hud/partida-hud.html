@@ -95,7 +95,7 @@
         <div class="actions-panel">
             <button class="action-btn btn-poly" [class.active]="accionActual === 'Poner'"
                 (click)="onActionClick('Poner')"
-                [disabled]="(gameState?.estado && gameState?.estado !== 'COLOCACION') || tanquesNoColocados.length === 0">
+                [disabled]="gameState?.estado !== 'JUGANDO' || !esMiTurno() || tanquesNoColocados.length === 0">
                 PONER TANQUE <span class="btn-cost" *ngIf="tanqueEnMano?.costePoner">({{tanqueEnMano.costePoner}}
                     PA)</span>
             </button>

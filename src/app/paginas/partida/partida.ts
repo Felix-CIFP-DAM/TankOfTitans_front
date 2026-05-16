@@ -133,12 +133,13 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   conectarSocket() {
-    this.websocketService.listen('partidaIniciada').subscribe((res: any) => {
-      this.actualizarEstado(res.estado);
-      const esMiTurno = String(res.estado.turnoActual) === String(this.miUsuario?.id);
-      const nicknameTurno = esMiTurno ? 'TU TURNO' : (this.rivales[0]?.nickname || 'TURNO RIVAL');
-      
-      this.showNotification('¡PARTIDA INICIADA!', `Primer turno: ${nicknameTurno}`);
+    this.websocketService.listen('seleccionTanques').subscribe((res: any) => {
+      console.log('[FRONT][Partida] 🚀 Partida iniciada/seleccion:', res);
+      if (res.mapa) {
+        // Si el mapa viene en el evento de inicio, lo forzamos en el estado si no estaba
+        this.gameState.update(s => s ? { ...s, mapa: res.mapa } : { mapa: res.mapa });
+      }
+      this.showNotification('¡PARTIDA INICIADA!', res.mensaje || '¡Que comience la batalla!');
     });
     this.websocketService.listen('turnoCambiado').subscribe((res: any) => {
       console.log('[FRONT][Partida] 🔄 Turno cambiado. Estado:', res.estado);
@@ -210,7 +211,17 @@ export class Partida implements OnInit, OnDestroy {
 
     this.websocketService.emit('obtenerEstadoPartida', { partidaId: this.partidaId });
     this.websocketService.listen('estadoPartida').subscribe((res: any) => {
-      if (res.estado) this.actualizarEstado(res.estado);
+      if (res.estado) {
+        const estadoPrevio = this.gameState()?.estado;
+        this.actualizarEstado(res.estado);
+        
+        // Si acabamos de recibir el estado por primera vez y ya estamos JUGANDO
+        if (!estadoPrevio && res.estado.estado === 'JUGANDO') {
+           const esMiTurno = String(res.estado.turnoActual) === String(this.miUsuario?.id);
+           const nick = esMiTurno ? 'TU TURNO' : 'TURNO RIVAL';
+           this.showNotification('PARTIDA EN CURSO', `Turno actual: ${nick}`);
+        }
+      }
     });
 
     this.abandonSub = this.websocketService.listen('jugadorAbandono').subscribe((datos: any) => {
