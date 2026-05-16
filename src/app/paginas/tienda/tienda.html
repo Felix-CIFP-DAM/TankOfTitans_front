@@ -15,11 +15,7 @@
         <div class="user-currency">
             <div class="currency-item">
                 <img src="play_icono.png" alt="Credits" />
-                <span>15,240</span>
-            </div>
-            <div class="currency-item gold">
-                <img src="market_icono.png" alt="Gold" />
-                <span>450</span>
+                <span>{{ monedas | number }}</span>
             </div>
         </div>
     </header>
@@ -39,96 +35,78 @@
 
     <!-- Content Area -->
     <main class="tienda-content">
+        
+        <div *ngIf="cargando" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>CONECTANDO AL MARKETPLACE...</p>
+        </div>
 
-        <!-- Section: Tanks -->
-        <div *ngIf="seccionActual === 'tanques'" class="section-grid animate-fade">
-            <div class="market-card">
-                <div class="card-image"><img src="vehiculos/tanque_1.png" alt="Tank"
-                        onerror="this.src='play_icono.png'" /></div>
+        <div *ngIf="seccionActual === 'tanques' && !cargando" class="section-grid animate-fade">
+            <div class="market-card" *ngFor="let tanque of tanques" [class.bloqueado]="!tanque.esComprable">
+                <div class="card-image">
+                    <img [src]="getImagenTanque(tanque)" [alt]="tanque.nombre" onerror="this.src='play_icono.png'" />
+                </div>
                 <div class="card-info">
-                    <h3>T-80 REVENANT</h3>
-                    <p>Heavy duty armor with thermal sights.</p>
+                    <h3>{{ tanque.nombre }}</h3>
+                    <p>{{ tanque.tipo }} - HP: {{ tanque.hp }} / ATK: {{ tanque.ataque }}</p>
                     <div class="card-price">
                         <img src="play_icono.png" alt="Credits" />
-                        <span>5,000</span>
+                        <span>{{ tanque.precio | number }}</span>
                     </div>
                 </div>
-                <button class="buy-btn">ADQUIRIR</button>
-            </div>
-            <div class="market-card">
-                <div class="card-image"><img src="vehiculos/tanque_2.png" alt="Tank"
-                        onerror="this.src='play_icono.png'" /></div>
-                <div class="card-info">
-                    <h3>LEOPARD 2A7</h3>
-                    <p>Superior mobility and precision fire.</p>
-                    <div class="card-price">
-                        <img src="play_icono.png" alt="Credits" />
-                        <span>7,500</span>
-                    </div>
-                </div>
-                <button class="buy-btn">ADQUIRIR</button>
-            </div>
-            <div class="market-card">
-                <div class="card-image"><img src="vehiculos/tanque_3.png" alt="Tank"
-                        onerror="this.src='play_icono.png'" /></div>
-                <div class="card-info">
-                    <h3>CHALLENGER 3</h3>
-                    <p>Unmatched defensive capabilities.</p>
-                    <div class="card-price">
-                        <img src="play_icono.png" alt="Credits" />
-                        <span>10,000</span>
-                    </div>
-                </div>
-                <button class="buy-btn">ADQUIRIR</button>
+                
+                <button *ngIf="!tanque.comprado && tanque.esComprable" 
+                        class="buy-btn" 
+                        (click)="comprarTanque(tanque.id)">
+                    ADQUIRIR
+                </button>
+                
+                <button *ngIf="tanque.comprado" class="buy-btn owned" disabled>
+                    ADQUIRIDO
+                </button>
+
+                <button *ngIf="!tanque.comprado && !tanque.esComprable" class="buy-btn locked" disabled>
+                    BLOQUEADO
+                </button>
             </div>
         </div>
 
-        <!-- Section: Customization -->
-        <div *ngIf="seccionActual === 'personalizacion'" class="section-grid animate-fade">
-            <div class="market-card">
-                <div class="card-image customization">
-                    <div class="placeholder-img color-camo"></div>
-                </div>
-                <div class="card-info">
-                    <h3>CAMO: URBAN GHOST</h3>
-                    <p>Pixelated urban camouflage pattern.</p>
-                    <div class="card-price">
-                        <img src="market_icono.png" alt="Gold" />
-                        <span>200</span>
-                    </div>
-                </div>
-                <button class="buy-btn">EQUIPAR</button>
-            </div>
-            <div class="market-card">
-                <div class="card-image customization">
-                    <div class="placeholder-img color-desert"></div>
-                </div>
-                <div class="card-info">
-                    <h3>CAMO: DESERT FOX</h3>
-                    <p>Effective in sandy environments.</p>
-                    <div class="card-price">
-                        <img src="market_icono.png" alt="Gold" />
-                        <span>200</span>
-                    </div>
-                </div>
-                <button class="buy-btn">EQUIPAR</button>
+        <!-- Section: Customization (Empty for now or placeholders) -->
+        <div *ngIf="seccionActual === 'personalizacion' && !cargando" class="section-grid animate-fade">
+            <div class="empty-section">
+                <mat-icon>Construction</mat-icon>
+                <p>PRÓXIMAMENTE: CAMUFLAJES Y SKINS</p>
             </div>
         </div>
 
-        <!-- Section: Profile -->
-        <div *ngIf="seccionActual === 'perfil'" class="section-grid animate-fade">
-            <div class="market-card profile">
-                <div class="card-image"><img src="perfiles/avatar_1.png" alt="Avatar"
-                        onerror="this.src='perfil_icono.png'" /></div>
+        <!-- Section: Profile (Avatars) -->
+        <div *ngIf="seccionActual === 'perfil' && !cargando" class="section-grid animate-fade">
+            <div class="market-card profile" *ngFor="let avatar of avatares">
+                <div class="card-image">
+                    <img [src]="getImagenAvatar(avatar)" [alt]="avatar.nombre" onerror="this.src='perfil_icono.png'" />
+                </div>
                 <div class="card-info">
-                    <h3>AVATAR: ELITE PILOT</h3>
-                    <p>Show your veteran status.</p>
+                    <h3>{{ avatar.nombre }}</h3>
+                    <p>Icono de perfil exclusivo</p>
                     <div class="card-price">
-                        <img src="market_icono.png" alt="Gold" />
-                        <span>100</span>
+                        <img src="play_icono.png" alt="Credits" />
+                        <span>{{ avatar.precio | number }}</span>
                     </div>
                 </div>
-                <button class="buy-btn">COMPRAR</button>
+
+                <button *ngIf="!avatar.comprado && avatar.esComprable" 
+                        class="buy-btn" 
+                        (click)="comprarAvatar(avatar.id)">
+                    COMPRAR
+                </button>
+
+                <button *ngIf="avatar.comprado" class="buy-btn owned" disabled>
+                    ADQUIRIDO
+                </button>
+
+                <button *ngIf="!avatar.comprado && !avatar.esComprable" class="buy-btn locked" disabled>
+                    ESPECIAL
+                </button>
             </div>
         </div>
 

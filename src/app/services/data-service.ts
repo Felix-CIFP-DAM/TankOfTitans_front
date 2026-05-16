@@ -318,4 +318,54 @@ export class DataService {
 
     return respuesta.asObservable();
   }
+
+  // ===================== TIENDA =====================
+
+  obtenerTienda(): Observable<any> {
+    const respuesta = new Subject<any>();
+    console.log('[FRONT][DataService] 📤 Emitiendo obtener_tienda');
+    this.socketService.emit('obtener_tienda', {});
+
+    // Escuchamos el éxito
+    const successSub = this.socketService.listen('tienda_datos').pipe(first()).subscribe((res: any) => {
+      console.log('[FRONT][DataService] 📥 tienda_datos recibido:', res);
+      respuesta.next(res);
+      errorSub.unsubscribe(); // Si llega éxito, dejamos de escuchar el error
+    });
+
+    // Escuchamos posibles errores del servidor
+    const errorSub = this.socketService.listen('error').pipe(first()).subscribe((err: any) => {
+      console.error('[FRONT][DataService] ❌ Error recibido del servidor:', err);
+      respuesta.error(err.error || 'Error desconocido en el marketplace');
+      successSub.unsubscribe(); // Si llega error, dejamos de escuchar el éxito
+    });
+
+    return respuesta.asObservable();
+  }
+
+  comprarTanque(tanqueId: number): Observable<any> {
+    const respuesta = new Subject<any>();
+    console.log('[FRONT][DataService] 📤 Emitiendo comprar_tanque ->', tanqueId);
+    this.socketService.emit('comprar_tanque', { tanqueId });
+
+    this.socketService.listen('compra_resultado').pipe(first()).subscribe((res: any) => {
+      console.log('[FRONT][DataService] 📥 compra_resultado recibido:', res);
+      respuesta.next(res);
+    });
+
+    return respuesta.asObservable();
+  }
+
+  comprarAvatar(avatarId: number): Observable<any> {
+    const respuesta = new Subject<any>();
+    console.log('[FRONT][DataService] 📤 Emitiendo comprar_avatar ->', avatarId);
+    this.socketService.emit('comprar_avatar', { avatarId });
+
+    this.socketService.listen('compra_resultado').pipe(first()).subscribe((res: any) => {
+      console.log('[FRONT][DataService] 📥 compra_resultado recibido:', res);
+      respuesta.next(res);
+    });
+
+    return respuesta.asObservable();
+  }
 }

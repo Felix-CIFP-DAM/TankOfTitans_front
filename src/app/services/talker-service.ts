@@ -60,4 +60,17 @@ export class TalkerService {
     this.info(mensaje);
   }
 
+  asistente(mensaje: string) {
+    this.snackBar.open(mensaje, '', {
+      duration: 3500,
+      horizontalPosition: 'left',
+      verticalPosition: 'bottom',
+      panelClass: 'snack-bar-sistema',
+    });
+  }
+
+  notificarSistema(mensaje: string) {
+    this.asistente(mensaje);
+  }
+
 }
