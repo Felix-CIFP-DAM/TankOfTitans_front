@@ -33,7 +33,8 @@ export class PanelPrincipal implements OnInit {
 
   ngOnInit() {
     this.actualizarDatosLocales();
-    this.audioService.playMusic('audio/theme.mp3');
+    this.audioService.stopMusic();
+    // this.audioService.playMusic('audio/semt-menu-theme.mp3'); //luego lo pondré que ahora hay que resolver la tienda
   }
 
   actualizarDatosLocales() {

@@ -7,6 +7,7 @@ import { WebsocketService } from '../../services/websocket-service';
 import { DataService } from '../../services/data-service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { TalkerService } from '../../services/talker-service';
 
 @Component({
   selector: 'app-partida',
@@ -41,11 +42,9 @@ export class Partida implements OnInit, OnDestroy {
   private timeTotalNum = 15 * 60;
   private timeTurnoNum = 30;
 
-  // Fuente de verdad para datos estáticos (avatars, etc.)
   jugadoresInfo: Map<string, any> = new Map();
 
   private socketSub?: Subscription;
-
   private abandonSub?: Subscription;
   private isAbandoning = false;
   private isGameFinished = false;
@@ -54,7 +53,8 @@ export class Partida implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private websocketService: WebsocketService,
-    private dataService: DataService
+    private dataService: DataService,
+    private talkerService: TalkerService
   ) {}
 
   ngOnInit() {
@@ -87,11 +87,7 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   cargarDatosYConectar() {
-    console.log('[FRONT][Partida] 🛰️ Cargando datos iniciales...');
-    
     const idsGuardados: number[] = JSON.parse(localStorage.getItem('mis_tanques_ids') || '[]');
-    console.log('[FRONT][Partida] 📋 IDs tanques desde localStorage:', idsGuardados);
-    
     this.dataService.obtenerTanques().subscribe({
       next: (todosLosTanques: any[]) => {
         if (idsGuardados.length > 0) {
@@ -105,7 +101,6 @@ export class Partida implements OnInit, OnDestroy {
               costeMover: t.costeMover || t.coste_mover || 5
             }));
           this.misTanquesNoColocados = [...this.misTanquesSeleccionados];
-          console.log('[FRONT][Partida] 🛡️ Tanques seleccionados listos:', this.misTanquesSeleccionados.map(t => t.nombre));
         }
 
         const miNick = sessionStorage.getItem('nickname') || '';
@@ -117,7 +112,6 @@ export class Partida implements OnInit, OnDestroy {
         this.conectarSocket();
       },
       error: (err) => {
-        console.error('[FRONT][Partida] ❌ Error cargando tanques:', err);
         this.conectarSocket();
       }
     });
@@ -133,15 +127,14 @@ export class Partida implements OnInit, OnDestroy {
   }
 
   conectarSocket() {
-    this.websocketService.listen('partidaIniciada').subscribe((res: any) => {
-      this.actualizarEstado(res.estado);
-      const esMiTurno = String(res.estado.turnoActual) === String(this.miUsuario?.id);
-      const nicknameTurno = esMiTurno ? 'TU TURNO' : (this.rivales[0]?.nickname || 'TURNO RIVAL');
-      
-      this.showNotification('¡PARTIDA INICIADA!', `Primer turno: ${nicknameTurno}`);
+    this.websocketService.listen('seleccionTanques').subscribe((res: any) => {
+      if (res.mapa) {
+        this.gameState.update(s => s ? { ...s, mapa: res.mapa } : { mapa: res.mapa });
+      }
+      this.showNotification('¡PARTIDA INICIADA!', res.mensaje || '¡Que comience la batalla!');
     });
+
     this.websocketService.listen('turnoCambiado').subscribe((res: any) => {
-      console.log('[FRONT][Partida] 🔄 Turno cambiado. Estado:', res.estado);
       this.actualizarEstado(res.estado);
       const esMiTurno = String(res.estado.turnoActual) === String(this.miUsuario?.id);
       if (esMiTurno) {
@@ -150,8 +143,6 @@ export class Partida implements OnInit, OnDestroy {
     });
     
     this.websocketService.listen('partidaFinalizada').subscribe((res: any) => {
-      console.log('[FRONT][Partida] 🏆 Partida finalizada:', res);
-      
       const miId = this.miUsuario?.id;
       const soyGanador = String(res.ganadorId) === String(miId);
       const esEmpate = res.ganadorId === 'EMPATE';
@@ -171,11 +162,7 @@ export class Partida implements OnInit, OnDestroy {
       }
       
       this.showNotification(title, subtitle);
-      
-      // Bloquear acciones
       this.gameState.update(s => ({ ...s, estado: 'FINALIZADA' }));
-
-      // Redirigir al lobby (preparacion) tras unos segundos
       setTimeout(() => {
         this.router.navigate(['/preparacion'], { queryParams: { id: this.partidaId } });
       }, 6000);
@@ -188,34 +175,38 @@ export class Partida implements OnInit, OnDestroy {
     });
     
     this.websocketService.listen('tanqueMovido').subscribe((res: any) => {
-      // Reseteamos SOLO la acción tras mover (solicitud del usuario)
       this.accionActual = null;
       this.actualizarEstado(res.estado);
     });
     
     this.websocketService.listen('ataqueRealizado').subscribe((res: any) => {
-      // Reseteamos SOLO la acción tras atacar (solicitud del usuario)
       this.accionActual = null;
       this.actualizarEstado(res.estado);
-      
       if (res.hit === false) {
         this.showNotification('¡FALLO!', 'El proyectil no impactó en ningún tanque');
       }
     });
     
     this.websocketService.listen('error').subscribe((res: any) => {
-      console.error('[FRONT][Partida] Error del servidor:', res.error);
-      alert('Error en partida: ' + res.error);
+      this.talkerService.notificarError('ERROR EN PARTIDA: ' + res.error);
     });
 
     this.websocketService.emit('obtenerEstadoPartida', { partidaId: this.partidaId });
     this.websocketService.listen('estadoPartida').subscribe((res: any) => {
-      if (res.estado) this.actualizarEstado(res.estado);
+      if (res.estado) {
+        const estadoPrevio = this.gameState()?.estado;
+        this.actualizarEstado(res.estado);
+        if (!estadoPrevio && res.estado.estado === 'JUGANDO') {
+           const esMiTurno = String(res.estado.turnoActual) === String(this.miUsuario?.id);
+           const nick = esMiTurno ? 'TU TURNO' : 'TURNO RIVAL';
+           this.showNotification('PARTIDA EN CURSO', `Turno actual: ${nick}`);
+        }
+      }
     });
 
     this.abandonSub = this.websocketService.listen('jugadorAbandono').subscribe((datos: any) => {
       this.isGameFinished = true;
-      alert(datos.message || 'El oponente ha abandonado la partida.');
+      this.talkerService.notificarSistema(datos.message || 'EL OPONENTE HA ABANDONADO LA PARTIDA');
       this.router.navigate(['/preparacion'], { queryParams: { id: this.partidaId } });
     });
   }
@@ -223,40 +214,31 @@ export class Partida implements OnInit, OnDestroy {
   actualizarEstado(estado: any) {
     if (!estado) return;
     this.gameState.set(estado);
-
     if (estado.timeLeft) {
       this.timeTotalNum = estado.timeLeft.total || 15 * 60;
       this.timeTurnoNum = estado.timeLeft.turno || 30;
       this.actualizarStringsTimers();
     }
-    
     const miNick = sessionStorage.getItem('nickname')?.toLowerCase();
     const jugadoresSocket: any[] = Object.values(estado.jugadores);
-    
     const jugadoresMezclados = jugadoresSocket.map((js: any) => ({
       ...js,
       avatar: js.iconoImagen || (this.jugadoresInfo.get((js.nickname || '').toLowerCase()) || {}).avatar || 'recluta.png'
     }));
-
     this.miUsuario = jugadoresMezclados.find((j: any) => (j.nickname || '').toLowerCase() === miNick);
     this.rivales = jugadoresMezclados.filter((j: any) => (j.nickname || '').toLowerCase() !== miNick);
-
     jugadoresMezclados.forEach((j: any) => {
       this.jugadoresInfo.set((j.nickname || '').toLowerCase(), j);
     });
-
     if (this.selectedTank) {
       const updated = (estado.tanques || []).find((t: any) => String(t.id) === String(this.selectedTank.id));
-      if (!updated) console.warn('[FRONT][Partida] ⚠️ Se perdió el tanque seleccionado tras actualizar estado:', this.selectedTank.id);
       this.selectedTank = updated || null;
     }
-
     if (this.miUsuario) {
         const miId = this.miUsuario.id;
         const idsColocados = (estado.tanques || [])
           .filter((t: any) => String(t.propietarioId) === String(miId))
           .map((t: any) => Number(t.id));
-
         this.misTanquesNoColocados = this.misTanquesSeleccionados.filter(t => !idsColocados.includes(Number(t.id)));
     }
   }
@@ -271,7 +253,6 @@ export class Partida implements OnInit, OnDestroy {
 
   onTankSelected(tanque: any) {
     this.tanqueEnMano = tanque;
-    console.log('[FRONT][Partida] 🎯 Tanque seleccionado para poner:', tanque.nombre);
   }
 
   onMapaClick(pos: {x: number, y: number}) {
@@ -298,11 +279,9 @@ export class Partida implements OnInit, OnDestroy {
         targetY: pos.y
       });
     } else {
-      // Intentar seleccionar un tanque del tablero
       const tank = (this.gameState()?.tanques || []).find((t: any) => t.posX === pos.x && t.posY === pos.y);
       if (tank && String(tank.propietarioId) === String(this.miUsuario.id)) {
         this.selectedTank = tank;
-        console.log('[FRONT][Partida] 🛡️ Tanque seleccionado en tablero:', tank.nombre);
       }
     }
   }

@@ -4,6 +4,7 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { DataService } from '../../services/data-service';
 import { WebsocketService } from '../../services/websocket-service';
 import { Subscription } from 'rxjs';
+import { TalkerService } from '../../services/talker-service';
 
 interface Tanque {
   id: number;
@@ -54,7 +55,8 @@ export class Preparacion implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private dataService: DataService,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private talkerService: TalkerService
   ) { }
 
   ngOnInit(): void {
@@ -62,50 +64,37 @@ export class Preparacion implements OnInit, OnDestroy {
       this.id_sala = params['id'];
       console.log('[FRONT][Preparacion] 🆔 ID de sala detectado:', this.id_sala);
       this.cargarDatos();
-      // Pedir estado actual al cargar (dentro del subscribe para asegurar que tenemos el id_sala)
       if (this.id_sala) {
         this.websocketService.emit('obtenerEstadoSala', { partidaId: this.id_sala });
       }
     });
 
-    // Escuchar cambios en la sala
     this.socketSub = this.websocketService.listen('estadoSala').subscribe((partida: any) => {
       console.log('[FRONT][Preparacion] 📥 estadoSala recibido:', partida);
       this.actualizarJugadores(partida);
     });
 
-    // Escuchar si alguien se une
     this.websocketService.listen('jugadorUnido').subscribe((partida: any) => {
       console.log('[FRONT][Preparacion] 📥 jugadorUnido recibido:', partida);
       this.actualizarJugadores(partida);
     });
 
-    // Escuchar cuenta atrás
     this.websocketService.listen('cuentaAtras').subscribe((count: number) => {
       this.cuentaAtras.set(count);
     });
 
-    // Escuchar inicio de partida (envío a selección de tanques)
     this.websocketService.listen('seleccionTanques').subscribe((datos: any) => {
       console.log('[FRONT][Preparacion] 🚀 ¡Partida iniciada! Redirigiendo...', datos);
       this.isNavigatingToGame = true;
-      // Guardamos el mapa en el localStorage para que el componente partida-mapa lo lea
       localStorage.setItem('mapa_temp', JSON.stringify(datos.mapa));
       
-      // --- FIX CRÍTICO ---
-      // Guardamos los tanquesIds del jugador actual en localStorage para que
-      // partida.ts los pueda leer sin depender de un socket round-trip de `obtenerEstadoSala`
-      // (que falla porque ya estamos en la sala game_* cuando llegamos a /partida)
       const miNick = sessionStorage.getItem('nickname');
       const yo = this.jugadores.find(j => j.nickname === miNick);
       if (yo && yo.tanquesIds) {
         localStorage.setItem('mis_tanques_ids', JSON.stringify(yo.tanquesIds));
-        console.log('[FRONT][Preparacion] 💾 tanquesIds guardados en localStorage:', yo.tanquesIds);
       } else {
-        // Fallback: usar el pelotón local como fuente de verdad
         const pelotón = this.peloton().map(t => t.id);
         localStorage.setItem('mis_tanques_ids', JSON.stringify(pelotón));
-        console.log('[FRONT][Preparacion] 💾 tanquesIds (peloton fallback) guardados:', pelotón);
       }
       
       this.router.navigate(['/partida'], { 
@@ -116,11 +105,15 @@ export class Preparacion implements OnInit, OnDestroy {
       });
     });
 
-    // Escuchar si alguien abandona
     this.abandonSub = this.websocketService.listen('jugadorAbandono').subscribe((datos: any) => {
       console.log('[FRONT][Preparacion] 🚪 jugadorAbandono recibido:', datos);
-      // Actualizamos el estado pidiéndolo de nuevo al servidor (el backend ya lo emite automáticamente pero esto es un seguro)
+      this.talkerService.notificarSistema('UN JUGADOR HA ABANDONADO LA SALA');
       this.websocketService.emit('obtenerEstadoSala', { partidaId: this.id_sala });
+    });
+
+    this.websocketService.listen('error').subscribe((res: any) => {
+      console.error('[FRONT][Preparacion] ❌ Error del servidor:', res.error);
+      this.talkerService.notificarError('ERROR: ' + res.error);
     });
   }
 
@@ -133,7 +126,6 @@ export class Preparacion implements OnInit, OnDestroy {
   }
 
   cargarDatos() {
-    // 1. Cargar tanques del usuario
     this.dataService.obtenerTanques().subscribe((res: any[]) => {
       this.tanquesDisponibles = res.map(t => ({
         id: t.id,
@@ -144,17 +136,14 @@ export class Preparacion implements OnInit, OnDestroy {
         stats: {
           ataque: t.ataque,
           defensa: t.defensa,
-          velocidad: t.rangoMovimiento * 10 // Simplificación para UI
+          velocidad: t.rangoMovimiento * 10
         }
       }));
-
-      // Si ya habíamos recibido el estado de la sala pero no teníamos los tanques cargados, sincronizar ahora
       if (this.ultimaPartidaRecibida) {
         this.actualizarJugadores(this.ultimaPartidaRecibida);
       }
     });
 
-    // 2. Cargar mapas si soy el host
     this.dataService.listarMapas().subscribe((res: any[]) => {
       this.mapasDisponibles = res;
     });
@@ -172,7 +161,6 @@ export class Preparacion implements OnInit, OnDestroy {
       tanquesIds: j.tanquesIds || []
     }));
 
-    // Sincronizar mi propio pelotón local con lo que dice el servidor
     const miNick = sessionStorage.getItem('nickname');
     const yo = this.jugadores.find(j => j.nickname === miNick);
     if (yo && yo.tanquesIds) {
@@ -183,7 +171,6 @@ export class Preparacion implements OnInit, OnDestroy {
       this.peloton.set(tanquesSincronizados);
     }
 
-    // Sincronizar mapa seleccionado
     if (partida.mapaId) {
       this.mapaSeleccionado.set({ id: partida.mapaId });
     } else {
@@ -197,17 +184,14 @@ export class Preparacion implements OnInit, OnDestroy {
 
   seleccionarTanque(tanque: Tanque) {
     if (this.peloton().length < 3 && !this.peloton().find(t => t.id === tanque.id)) {
-      // Notificar al servidor
       this.websocketService.emit('seleccionarTanque', { 
         partidaId: this.id_sala, 
         tanqueId: tanque.id 
       });
-      // El servidor responderá con un estadoSala que actualizará el pelotón vía signal
     }
   }
 
   quitarTanque(tanqueId: number) {
-    // Notificar al servidor
     this.websocketService.emit('deseleccionarTanque', { 
       partidaId: this.id_sala, 
       tanqueId: tanqueId 
@@ -216,8 +200,6 @@ export class Preparacion implements OnInit, OnDestroy {
 
   toggleListo() {
     if (this.peloton().length !== 3) return;
-
-    // Llamada al backend para cambiar estado de listo
     this.websocketService.emit('marcarListo', { partidaId: this.id_sala });
   }
 
@@ -233,14 +215,12 @@ export class Preparacion implements OnInit, OnDestroy {
     this.desconectar();
   }
 
-  // Helper para saber si el usuario actual está listo
   get yoListo(): boolean {
     const miNick = sessionStorage.getItem('nickname');
     const yo = this.jugadores.find(j => j.nickname === miNick);
     return yo ? yo.listo : false;
   }
 
-  // Helper para saber si soy el host
   get soyHost(): boolean {
     const miNick = sessionStorage.getItem('nickname');
     const yo = this.jugadores.find(j => j.nickname === miNick);

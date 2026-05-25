@@ -4,6 +4,7 @@ import { AutotilingService } from '../../services/autotiling.service';
 import { WebsocketService } from '../../services/websocket-service';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { TalkerService } from '../../services/talker-service';
 
 
 export interface TileInfo {
@@ -100,7 +101,8 @@ export class CrearMapas implements OnInit, OnDestroy {
   private socketSub?: Subscription;
 
   constructor(
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private talkerService: TalkerService
   ) {
     this.initGrid();
   }
@@ -118,10 +120,10 @@ export class CrearMapas implements OnInit, OnDestroy {
     this.websocketService.listen('mapa:guardado').subscribe((res: any) => {
       if (res.success) {
         console.log('✅ Mapa guardado con éxito:', res.mapa);
-        alert('Mapa guardado correctamente');
+        this.talkerService.notificarExito('MAPA GUARDADO CORRECTAMENTE');
       } else {
         console.error('❌ Error al guardar:', res.mensaje);
-        alert('Error al guardar el mapa: ' + res.mensaje);
+        this.talkerService.notificarError('ERROR AL GUARDAR EL MAPA: ' + res.mensaje);
       }
     });
   }
