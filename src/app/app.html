@@ -1,2 +1,7 @@
-
-<router-outlet />
+<div class="app-global-container" 
+     [style.transform]="scaleFactor !== 1 ? 'scale(' + scaleFactor + ')' : 'none'" 
+     [style.transform-origin]="'top left'" 
+     [style.width]="scaleFactor !== 1 ? (100 / scaleFactor) + 'vw' : '100vw'" 
+     [style.height]="scaleFactor !== 1 ? (100 / scaleFactor) + 'vh' : '100vh'">
+  <router-outlet />
+</div>

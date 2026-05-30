@@ -226,6 +226,7 @@
 html, body {
   height: 100%;
   margin: 0;
+  overflow: hidden; /* Prevent double scrollbars on scaled layouts */
   background: var(--bg-gradient);
   color: var(--text-primary);
   font-family: 'Inter', "Helvetica Neue", sans-serif;
@@ -372,5 +373,18 @@ body::after {
   html { font-size: 14px; }
   body { overflow-x: hidden; }
 
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar { width: 12px; height: 12px; } /* Wider scrollbar for easy touch interaction */
+}
+
+@media screen and (max-width: 1024px) {
+  /* Dynamic touch-friendly scrolling settings */
+  .salas-container,
+  .tienda-content,
+  .modal-body,
+  .avatar-grid-container,
+  .roster-scroll-area,
+  .content-panel,
+  .palette-container {
+    -webkit-overflow-scrolling: touch !important;
+  }
 }
